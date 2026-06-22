@@ -8,25 +8,12 @@ import {
   markOrderShipped,
   updateInventoryItem,
 } from "@/lib/orders/service";
-import {
-  clearAdminSession,
-  createAdminSession,
-  requireAdmin,
-  validateAdminPassword,
-} from "@/lib/admin/auth";
-
-export async function loginAdmin(formData: FormData) {
-  const password = String(formData.get("password") || "");
-  if (!validateAdminPassword(password)) {
-    redirect("/admin/login?error=invalid");
-  }
-  await createAdminSession();
-  redirect("/admin/orders");
-}
+import { requireAdmin } from "@/lib/admin/auth";
+import { clearSession } from "@/lib/auth/session";
 
 export async function logoutAdmin() {
-  await clearAdminSession();
-  redirect("/admin/login");
+  await clearSession();
+  redirect("/login");
 }
 
 export async function markPaidAction(formData: FormData) {

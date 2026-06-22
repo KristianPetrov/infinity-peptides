@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { formatPrice } from "@/lib/products";
 import { getOrderByReference } from "@/lib/orders/service";
 import { trackingUrl, venmoHandle, venmoLink, zelleRecipient } from "@/lib/orders/config";
+import { getCurrentUser } from "@/lib/auth/session";
 
 export const dynamic = "force-dynamic";
 
@@ -22,10 +23,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function OrderPage({ params, searchParams }: Props) {
   const { reference } = await params;
   const { email } = await searchParams;
-  const order = await getOrderByReference(reference);
+  const [order, user] = await Promise.all([getOrderByReference(reference), getCurrentUser()]);
 
   if (!order) redirect("/track?error=not-found");
-  if (!email || email.trim().toLowerCase() !== order.email) {
+  const canView =
+    user?.role === "admin" ||
+    user?.id === order.userId ||
+    user?.email === order.email ||
+    email?.trim().toLowerCase() === order.email;
+
+  if (!canView) {
     redirect(`/track?reference=${encodeURIComponent(order.reference)}`);
   }
 

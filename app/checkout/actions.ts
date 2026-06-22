@@ -1,11 +1,13 @@
 "use server";
 
 import { createOrder, checkoutPayloadSchema } from "@/lib/orders/service";
+import { getCurrentUser } from "@/lib/auth/session";
 
 export async function createCheckoutOrder(payload: unknown) {
   try {
     const parsed = checkoutPayloadSchema.parse(payload);
-    const order = await createOrder(parsed);
+    const user = await getCurrentUser();
+    const order = await createOrder(parsed, user?.role === "customer" ? user.id : null);
     return { ok: true as const, order };
   } catch (error) {
     const message =

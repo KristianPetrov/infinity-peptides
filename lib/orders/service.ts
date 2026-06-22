@@ -1,5 +1,5 @@
 import { randomInt } from "crypto";
-import { and, desc, eq, inArray, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, or, sql } from "drizzle-orm";
 import { z } from "zod";
 import { products as catalogProducts } from "@/lib/products";
 import { db } from "@/lib/db";
@@ -86,7 +86,7 @@ export async function seedCatalogProducts() {
   }
 }
 
-export async function createOrder(payload: CheckoutPayload) {
+export async function createOrder(payload: CheckoutPayload, userId?: string | null) {
   const input = checkoutPayloadSchema.parse(payload);
   await seedCatalogProducts();
 
@@ -125,6 +125,7 @@ export async function createOrder(payload: CheckoutPayload) {
     .insert(orders)
     .values({
       reference,
+      userId: userId ?? null,
       email: input.shippingAddress.email,
       paymentMethod: input.paymentMethod,
       subtotalCents,
@@ -199,6 +200,21 @@ export async function findOrderForGuest(reference: string, email: string) {
 
 export async function listOrders(limit = 100): Promise<OrderWithItems[]> {
   const rows = await db.select().from(orders).orderBy(desc(orders.createdAt)).limit(limit);
+  const out: OrderWithItems[] = [];
+  for (const order of rows) {
+    const items = await db.select().from(orderItems).where(eq(orderItems.orderId, order.id));
+    out.push({ ...order, items });
+  }
+  return out;
+}
+
+export async function listOrdersForCustomer(userId: string, email: string): Promise<OrderWithItems[]> {
+  const rows = await db
+    .select()
+    .from(orders)
+    .where(or(eq(orders.userId, userId), eq(orders.email, email.trim().toLowerCase())))
+    .orderBy(desc(orders.createdAt))
+    .limit(100);
   const out: OrderWithItems[] = [];
   for (const order of rows) {
     const items = await db.select().from(orderItems).where(eq(orderItems.orderId, order.id));
