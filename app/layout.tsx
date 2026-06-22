@@ -5,6 +5,7 @@ import { CartProvider } from "./components/CartProvider";
 import { Header } from "./components/Header";
 import { Footer } from "./components/Footer";
 import { CartDrawer } from "./components/CartDrawer";
+import { getCurrentUser } from "@/lib/auth/session";
 
 const sora = Sora({
   variable: "--font-sans",
@@ -47,9 +48,11 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const user = await getCurrentUser();
+
   return (
     <html
       lang="en"
@@ -64,7 +67,7 @@ export default function RootLayout({
               <span className="aurora-blob aurora-3" />
               <span className="grid-veil" />
             </div>
-            <Header />
+            <Header userRole={user?.role ?? null} />
             <main className="site-main">{children}</main>
             <Footer />
           </div>

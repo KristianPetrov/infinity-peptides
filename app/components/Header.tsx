@@ -11,14 +11,24 @@ const NAV = [
   { href: "/science", label: "Science" },
   { href: "/compliance", label: "Compliance" },
   { href: "/track", label: "Track" },
-  { href: "/account", label: "Account" },
-  { href: "/admin", label: "Admin" },
 ];
 
-export function Header() {
+type HeaderProps = {
+  userRole?: "customer" | "admin" | null;
+};
+
+export function Header({ userRole = null }: HeaderProps) {
   const { count, hydrated, openDrawer } = useCart();
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const nav = [
+    ...NAV,
+    userRole === "admin"
+      ? { href: "/admin", label: "Admin" }
+      : userRole === "customer"
+        ? { href: "/account", label: "Account" }
+        : { href: "/login", label: "Login" },
+  ];
 
   return (
     <>
@@ -41,7 +51,7 @@ export function Header() {
         </Link>
 
         <nav className="site-nav" aria-label="Primary navigation">
-          {NAV.map((item) => (
+          {nav.map((item) => (
             <Link
               key={item.href}
               href={item.href}
@@ -81,7 +91,7 @@ export function Header() {
 
       {mobileOpen ? (
         <nav className="mobile-nav" aria-label="Mobile navigation">
-          {NAV.map((item) => (
+          {nav.map((item) => (
             <Link key={item.href} href={item.href} onClick={() => setMobileOpen(false)}>
               {item.label}
             </Link>
