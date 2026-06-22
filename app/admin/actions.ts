@@ -1,0 +1,68 @@
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import {
+  cancelOrder,
+  markOrderPaid,
+  markOrderShipped,
+  updateInventoryItem,
+} from "@/lib/orders/service";
+import {
+  clearAdminSession,
+  createAdminSession,
+  requireAdmin,
+  validateAdminPassword,
+} from "@/lib/admin/auth";
+
+export async function loginAdmin(formData: FormData) {
+  const password = String(formData.get("password") || "");
+  if (!validateAdminPassword(password)) {
+    redirect("/admin/login?error=invalid");
+  }
+  await createAdminSession();
+  redirect("/admin/orders");
+}
+
+export async function logoutAdmin() {
+  await clearAdminSession();
+  redirect("/admin/login");
+}
+
+export async function markPaidAction(formData: FormData) {
+  await requireAdmin();
+  await markOrderPaid(String(formData.get("orderId") || ""));
+  revalidatePath("/admin/orders");
+}
+
+export async function shipOrderAction(formData: FormData) {
+  await requireAdmin();
+  await markOrderShipped(
+    String(formData.get("orderId") || ""),
+    String(formData.get("carrier") || ""),
+    String(formData.get("trackingNumber") || ""),
+  );
+  revalidatePath("/admin/orders");
+}
+
+export async function cancelOrderAction(formData: FormData) {
+  await requireAdmin();
+  await cancelOrder(String(formData.get("orderId") || ""));
+  revalidatePath("/admin/orders");
+  revalidatePath("/admin/inventory");
+}
+
+export async function updateInventoryAction(formData: FormData) {
+  await requireAdmin();
+  const productId = String(formData.get("productId") || "");
+  const rawPrice = String(formData.get("priceCents") || "").trim();
+  const rawInventory = String(formData.get("inventory") || "0").trim();
+  await updateInventoryItem(productId, {
+    inventory: Math.max(0, Number.parseInt(rawInventory, 10) || 0),
+    priceCents: rawPrice ? Math.max(0, Number.parseInt(rawPrice, 10) || 0) : null,
+    active: formData.get("active") === "on",
+    featured: formData.get("featured") === "on",
+  });
+  revalidatePath("/admin/inventory");
+  revalidatePath("/store");
+}
