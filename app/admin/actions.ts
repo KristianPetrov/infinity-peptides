@@ -7,6 +7,7 @@ import {
   markOrderPaid,
   markOrderShipped,
   updateInventoryItem,
+  updateReferralCodeSettings,
 } from "@/lib/orders/service";
 import { requireAdmin } from "@/lib/admin/auth";
 import { clearSession } from "@/lib/auth/session";
@@ -52,4 +53,13 @@ export async function updateInventoryAction(formData: FormData) {
   });
   revalidatePath("/admin/inventory");
   revalidatePath("/store");
+}
+
+export async function updateReferralCodeAction(formData: FormData) {
+  await requireAdmin();
+  await updateReferralCodeSettings(String(formData.get("referralCodeId") || ""), {
+    active: formData.get("active") === "on",
+    allowReconstitutionSolution: formData.get("allowReconstitutionSolution") === "on",
+  });
+  revalidatePath("/admin/referrals");
 }

@@ -91,6 +91,7 @@ export const referralCodes = pgTable(
     discountType: discountType("discount_type").notNull(),
     discountValue: integer("discount_value").notNull(),
     minSubtotalCents: integer("min_subtotal_cents").default(0).notNull(),
+    allowReconstitutionSolution: boolean("allow_reconstitution_solution").default(true).notNull(),
     active: boolean("active").default(true).notNull(),
     usedCount: integer("used_count").default(0).notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
@@ -155,5 +156,6 @@ export const orderItems = pgTable("order_items", {
 
 export type DbProduct = InferSelectModel<typeof productsTable>;
 export type NewDbProduct = InferInsertModel<typeof productsTable>;
+export type DbReferralCode = InferSelectModel<typeof referralCodes>;
 export type DbOrder = InferSelectModel<typeof orders>;
 export type DbOrderItem = InferSelectModel<typeof orderItems>;

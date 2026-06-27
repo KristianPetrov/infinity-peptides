@@ -6,7 +6,7 @@ import {
   getProductBySlug,
   products,
 } from "@/lib/products";
-import { Vial, vialLabel } from "../../components/Vial";
+import { ProductImage } from "../../components/ProductImage";
 import { ProductBuyPanel } from "../../components/ProductBuyPanel";
 import { ProductCard } from "../../components/ProductCard";
 import { Reveal } from "../../components/Reveal";
@@ -24,6 +24,18 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   return {
     title: `${product.name} ${product.strength}`,
     description: product.description,
+    openGraph: product.imageSrc
+      ? {
+          images: [
+            {
+              url: product.imageSrc,
+              width: 1254,
+              height: 1254,
+              alt: `${product.name} ${product.strength}`,
+            },
+          ],
+        }
+      : undefined,
   };
 }
 
@@ -40,11 +52,17 @@ export default async function ProductPage({ params }: Params) {
     <>
       <article className="pdp" data-category={product.category}>
         <div
-          className="pdp-visual"
+          className={`pdp-visual ${product.imageSrc ? "has-product-image" : ""}`}
           // expose the category accent for the glow
           data-category={product.category}
         >
-          <Vial label={vialLabel(product.name)} />
+          <ProductImage
+            imageSrc={product.imageSrc}
+            name={product.name}
+            strength={product.strength}
+            priority
+            sizes="(max-width: 820px) 100vw, 45vw"
+          />
         </div>
 
         <div className="pdp-info">

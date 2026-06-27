@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useCart } from "./CartProvider";
 import { formatPrice } from "@/lib/products";
-import { Vial, vialLabel } from "./Vial";
+import { ProductImage } from "./ProductImage";
 
 export function CartDrawer() {
   const {
@@ -55,8 +55,13 @@ export function CartDrawer() {
             <ul className="cart-list">
               {items.map((item) => (
                 <li className="cart-line" key={item.slug}>
-                  <span className="cart-thumb">
-                    <Vial label={vialLabel(item.name)} />
+                  <span className={`cart-thumb ${item.imageSrc ? "has-product-image" : ""}`}>
+                    <ProductImage
+                      imageSrc={item.imageSrc}
+                      name={item.name}
+                      strength={item.strength}
+                      sizes="54px"
+                    />
                   </span>
                   <div className="cart-line-body">
                     <strong>{item.name}</strong>

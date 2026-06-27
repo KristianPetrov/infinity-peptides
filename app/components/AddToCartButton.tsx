@@ -40,6 +40,7 @@ export function AddToCartButton({
         name: product.name,
         strength: product.strength,
         priceCents: product.priceCents as number,
+        imageSrc: product.imageSrc,
       },
       quantity,
     );

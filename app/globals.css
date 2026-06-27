@@ -1026,7 +1026,7 @@ img {
   position: relative;
   display: grid;
   place-items: center;
-  height: 168px;
+  height: 260px;
   background: radial-gradient(
       circle at 50% 30%,
       rgba(255, 255, 255, 0.12),
@@ -1047,6 +1047,27 @@ img {
     transparent 60%
   );
   opacity: 0.9;
+}
+
+.product-visual.has-product-image {
+  padding: 10px;
+  background: #f7f8fb;
+}
+
+.product-visual.has-product-image::after {
+  opacity: 0;
+}
+
+.product-image {
+  position: relative;
+  z-index: 1;
+  display: block;
+  object-fit: contain;
+}
+
+.product-visual .product-image {
+  width: 100%;
+  height: 100%;
 }
 
 .featured-pip {
@@ -1170,6 +1191,12 @@ img {
   --accent-soft: rgba(111, 242, 192, 0.2);
   --accent-text: var(--green);
   --vial: linear-gradient(135deg, #6ff2c0, #4ee7f2);
+}
+[data-category="Research Support"] {
+  --accent: rgba(150, 170, 210, 0.5);
+  --accent-soft: rgba(150, 170, 210, 0.2);
+  --accent-text: #c7d4ee;
+  --vial: linear-gradient(135deg, #c7d4ee, #6ff2c0);
 }
 [data-category="Cognitive Research"] {
   --accent: rgba(241, 199, 106, 0.5);
@@ -1497,6 +1524,22 @@ img {
   position: absolute;
   inset: 0;
   background: radial-gradient(circle at 50% 120%, var(--accent-soft, rgba(78, 231, 242, 0.2)), transparent 60%);
+}
+
+.pdp-visual.has-product-image {
+  background: #f7f8fb;
+}
+
+.pdp-visual.has-product-image::after {
+  opacity: 0;
+}
+
+.pdp-visual.has-product-image .product-image {
+  width: 100%;
+  height: 100%;
+  padding: clamp(14px, 3vw, 34px);
+  object-fit: contain;
+  box-sizing: border-box;
 }
 
 .pdp-visual .product-vial {
@@ -2130,6 +2173,32 @@ img {
   gap: 8px;
 }
 
+.referral-row {
+  display: grid;
+  grid-template-columns: minmax(220px, 1.2fr) minmax(150px, 0.8fr) minmax(80px, 0.4fr) repeat(2, minmax(150px, 0.75fr)) auto;
+  gap: 14px;
+  align-items: center;
+}
+
+.admin-label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.referral-row .check-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
 /* ============================================================
    Cart drawer
    ============================================================ */
@@ -2243,6 +2312,17 @@ img {
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.04);
   overflow: hidden;
+}
+
+.cart-thumb.has-product-image {
+  background: #f7f8fb;
+}
+
+.cart-thumb .product-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transform: scale(1.22);
 }
 
 .cart-thumb .product-vial {
@@ -2510,7 +2590,8 @@ img {
   .admin-stats {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-  .inventory-row {
+  .inventory-row,
+  .referral-row {
     grid-template-columns: 1fr 1fr;
   }
 }
@@ -2600,7 +2681,8 @@ img {
     gap: 6px;
   }
   .admin-stats,
-  .inventory-row {
+  .inventory-row,
+  .referral-row {
     grid-template-columns: 1fr;
   }
   .cta-band {

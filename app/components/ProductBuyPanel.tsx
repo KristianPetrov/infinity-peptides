@@ -35,6 +35,7 @@ export function ProductBuyPanel({ product }: { product: Product }) {
         name: product.name,
         strength: product.strength,
         priceCents: product.priceCents as number,
+        imageSrc: product.imageSrc,
       },
       qty,
     );

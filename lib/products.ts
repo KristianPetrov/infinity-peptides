@@ -7,6 +7,7 @@ export type Category =
   | "Repair & Matrix"
   | "Growth & Signaling"
   | "Longevity & Cellular"
+  | "Research Support"
   | "Cognitive Research";
 
 export type Product = {
@@ -14,6 +15,7 @@ export type Product = {
   name: string;
   strength: string;
   priceCents?: number; // undefined => inquiry-only
+  imageSrc?: string;
   category: Category;
   tag: string; // short descriptor shown on cards
   description: string; // RUO-safe research description
@@ -25,6 +27,7 @@ export const CATEGORY_ORDER: Category[] = [
   "Repair & Matrix",
   "Growth & Signaling",
   "Longevity & Cellular",
+  "Research Support",
   "Cognitive Research",
 ];
 
@@ -37,11 +40,57 @@ export const CATEGORY_BLURB: Record<Category, string> = {
     "Growth-hormone secretagogues and signaling peptides for endocrine research models.",
   "Longevity & Cellular":
     "Mitochondrial, coenzyme, and cellular-aging reference compounds for longevity research.",
+  "Research Support":
+    "Ancillary laboratory reference materials that support lyophilized compound research workflows.",
   "Cognitive Research":
     "Neuroregulatory and nootropic reference peptides for cognitive research models.",
 };
 
-export const products: Product[] = [
+const PRODUCT_IMAGE_BY_SLUG: Partial<Record<string, string>> = {
+  "aod-9604-10mg": "/products/aod-9604-10mg.png",
+  "bac-water-10ml": "/products/bac-water-10ml.png",
+  "bacteriostatic-water-10ml": "/products/bacteriostatic-water-10ml.png",
+  "bacteriostatic-water-20ml": "/products/bacteriostatic-water-20ml.png",
+  "bpc-157-10mg": "/products/bpc-157-10mg.png",
+  "bpc-157-tb-500-10mg": "/products/bpc-tb-500-10mg-10mg.png",
+  "bpc-157-tb-500-5mg": "/products/bpc-tb-500-5mg-5mg.png",
+  "cagrilintide-10mg": "/products/cagrilintide-10mg.png",
+  "cjc-dac-2mg": "/products/cjc-dac-2mg.png",
+  epitalon: "/products/epitalon-10mg.png",
+  "ghk-cu-100mg": "/products/ghk-cu-100mg.png",
+  "ghk-cu-50mg": "/products/ghk-cu-50mg.png",
+  "glow-70mg": "/products/glow-70mg.png",
+  "glp-3-10mg": "/products/glp-3-10mg.png",
+  glutathione: "/products/glutathione.png",
+  "igf-1lr3-1mg": "/products/igf-1lr3-1mg.png",
+  "ipamorelin-10mg": "/products/ipamorelin-10mg.png",
+  kisspeptin: "/products/kisspeptin-10mg.png",
+  klow: "/products/klow-80mg.png",
+  "l-carnitine": "/products/l-carnitine-500mg.png",
+  "lipo-c-10ml": "/products/lipo-c-10ml.png",
+  "mots-c-10mg": "/products/mots-c-10mg.png",
+  "mots-c-40mg": "/products/mots-c-40mg.png",
+  "nad-1000mg": "/products/nad-1000mg.png",
+  "nad-500mg": "/products/nad-500mg.png",
+  "pt-141-10mg": "/products/pt-141-10mg.png",
+  "retatrutide-10mg": "/products/retatrutide-10mg.png",
+  "retatrutide-20mg": "/products/retatrutide-20mg.png",
+  "retatrutide-30mg": "/products/retatrutide-30mg.png",
+  "selank-10mg": "/products/selank-10mg.png",
+  "semaglutide-10mg": "/products/semaglutide-10mg.png",
+  "semaglutide-20mg": "/products/semaglutide-20mg.png",
+  "semax-10mg": "/products/semax-10mg.png",
+  "sermorelin-5mg": "/products/sermorelin-5mg.png",
+  "slu-pp-332": "/products/slu-pp-332-2mg.png",
+  "ss-31-10mg": "/products/ss-31-10mg.png",
+  "tb-500-10mg": "/products/tb-500-10mg.png",
+  "tesamorelin-10mg": "/products/tesamorelin-10mg.png",
+  "tirzepatide-10mg": "/products/tirzepatide-10mg.png",
+  "tirzepatide-20mg": "/products/tirzepatide-20mg.png",
+  "tirzepatide-30mg": "/products/tirzepatide-30mg.png",
+};
+
+const catalogProducts: Product[] = [
   // ---------------- Metabolic Research ----------------
   {
     slug: "retatrutide-10mg",
@@ -165,6 +214,24 @@ export const products: Product[] = [
     description:
       "Glutathione is an endogenous tripeptide antioxidant referenced in oxidative-stress and redox-balance research models.",
   },
+  {
+    slug: "glp-3-10mg",
+    name: "GLP-3",
+    strength: "10 mg",
+    category: "Metabolic Research",
+    tag: "GLP-series research peptide",
+    description:
+      "GLP-3 is a GLP-series reference peptide intended for comparative metabolic-pathway and incretin-family research models.",
+  },
+  {
+    slug: "lipo-c-10ml",
+    name: "Lipo-C",
+    strength: "10 mL",
+    category: "Metabolic Research",
+    tag: "Lipotropic research blend",
+    description:
+      "Lipo-C is a research blend referenced in laboratory investigations of lipotropic compounds and cellular energy-metabolism pathways.",
+  },
 
   // ---------------- Repair & Matrix ----------------
   {
@@ -270,6 +337,15 @@ export const products: Product[] = [
     description:
       "CJC-1295 with DAC is a long-acting growth-hormone-releasing hormone analog referenced in endocrine and metabolic research models.",
     featured: true,
+  },
+  {
+    slug: "igf-1lr3-1mg",
+    name: "IGF-1 LR3",
+    strength: "1 mg",
+    category: "Growth & Signaling",
+    tag: "Long R3 IGF-1 analog",
+    description:
+      "IGF-1 LR3 is a long R3 IGF-1 analog referenced in growth-factor signaling and cellular-development research models.",
   },
   {
     slug: "sermorelin-5mg",
@@ -386,6 +462,35 @@ export const products: Product[] = [
       "SLU-PP-332 is an estrogen-related-receptor (ERR) pan-agonist studied in mitochondrial-biogenesis and exercise-mimetic research.",
   },
 
+  // ---------------- Research Support ----------------
+  {
+    slug: "bac-water-10ml",
+    name: "BAC Water",
+    strength: "10 mL",
+    category: "Research Support",
+    tag: "Laboratory diluent reference",
+    description:
+      "BAC Water is an ancillary laboratory reference material for qualified research workflows involving lyophilized compounds.",
+  },
+  {
+    slug: "bacteriostatic-water-10ml",
+    name: "Bacteriostatic Sodium Chloride",
+    strength: "10 mL",
+    category: "Research Support",
+    tag: "Support solution reference",
+    description:
+      "A 10 mL bacteriostatic sodium chloride reference material for laboratory support workflows. For research use only.",
+  },
+  {
+    slug: "bacteriostatic-water-20ml",
+    name: "Bacteriostatic Sodium Chloride",
+    strength: "20 mL",
+    category: "Research Support",
+    tag: "Support solution reference",
+    description:
+      "A 20 mL bacteriostatic sodium chloride reference material for laboratory support workflows. For research use only.",
+  },
+
   // ---------------- Cognitive Research ----------------
   {
     slug: "semax-10mg",
@@ -408,6 +513,11 @@ export const products: Product[] = [
       "Selank is a synthetic analog of the immunomodulatory peptide tuftsin, referenced in anxiolytic and neuroregulatory research.",
   },
 ];
+
+export const products: Product[] = catalogProducts.map((product) => ({
+  ...product,
+  imageSrc: product.imageSrc ?? PRODUCT_IMAGE_BY_SLUG[product.slug],
+}));
 
 export function formatPrice(cents?: number): string {
   if (cents == null) return "Inquire";

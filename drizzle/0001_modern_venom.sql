@@ -1,0 +1,1 @@
+ALTER TABLE "referral_codes" ADD COLUMN "allow_reconstitution_solution" boolean DEFAULT true NOT NULL;

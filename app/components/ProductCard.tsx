@@ -1,18 +1,22 @@
 import Link from "next/link";
 import type { Product } from "@/lib/products";
 import { formatPrice } from "@/lib/products";
-import { Vial, vialLabel } from "./Vial";
 import { AddToCartButton } from "./AddToCartButton";
+import { ProductImage } from "./ProductImage";
 
 export function ProductCard({ product }: { product: Product }) {
   return (
     <article className="product-card" data-category={product.category}>
       <Link
-        className="product-visual"
+        className={`product-visual ${product.imageSrc ? "has-product-image" : ""}`}
         href={`/store/${product.slug}`}
         aria-label={`View ${product.name} ${product.strength}`}
       >
-        <Vial label={vialLabel(product.name)} />
+        <ProductImage
+          imageSrc={product.imageSrc}
+          name={product.name}
+          strength={product.strength}
+        />
         {product.featured ? <span className="featured-pip">Featured</span> : null}
       </Link>
       <div className="product-copy">

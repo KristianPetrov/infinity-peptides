@@ -7,9 +7,12 @@ import {
   orderItems,
   orders,
   productsTable,
+  referralCodes,
+  referralPartners,
   type DbOrder,
   type DbOrderItem,
   type DbProduct,
+  type DbReferralCode,
 } from "@/lib/db/schema";
 import { sendAdminNewOrder, sendOrderConfirmation } from "@/lib/email/orders";
 import {
@@ -51,6 +54,10 @@ export const checkoutPayloadSchema = z.object({
 
 export type CheckoutPayload = z.infer<typeof checkoutPayloadSchema>;
 export type OrderWithItems = DbOrder & { items: DbOrderItem[] };
+export type ReferralCodeWithPartner = DbReferralCode & {
+  partnerName: string;
+  partnerEmail: string | null;
+};
 
 export async function seedCatalogProducts() {
   for (const product of catalogProducts) {
@@ -64,7 +71,7 @@ export async function seedCatalogProducts() {
         description: product.description,
         category: product.category,
         priceCents: product.priceCents ?? null,
-        image: "/infinity-peptides-logo.png",
+        image: product.imageSrc ?? "/infinity-peptides-logo.png",
         featured: product.featured ?? false,
         active: true,
       })
@@ -77,7 +84,7 @@ export async function seedCatalogProducts() {
           description: product.description,
           category: product.category,
           priceCents: product.priceCents ?? null,
-          image: "/infinity-peptides-logo.png",
+          image: product.imageSrc ?? "/infinity-peptides-logo.png",
           featured: product.featured ?? false,
           active: true,
           updatedAt: new Date(),
@@ -228,6 +235,27 @@ export async function listInventory(): Promise<DbProduct[]> {
   return db.select().from(productsTable).orderBy(productsTable.category, productsTable.name);
 }
 
+export async function listReferralCodes(): Promise<ReferralCodeWithPartner[]> {
+  return db
+    .select({
+      id: referralCodes.id,
+      partnerId: referralCodes.partnerId,
+      code: referralCodes.code,
+      discountType: referralCodes.discountType,
+      discountValue: referralCodes.discountValue,
+      minSubtotalCents: referralCodes.minSubtotalCents,
+      allowReconstitutionSolution: referralCodes.allowReconstitutionSolution,
+      active: referralCodes.active,
+      usedCount: referralCodes.usedCount,
+      createdAt: referralCodes.createdAt,
+      partnerName: referralPartners.name,
+      partnerEmail: referralPartners.email,
+    })
+    .from(referralCodes)
+    .innerJoin(referralPartners, eq(referralCodes.partnerId, referralPartners.id))
+    .orderBy(referralCodes.code);
+}
+
 export async function markOrderPaid(orderId: string) {
   await db
     .update(orders)
@@ -290,6 +318,13 @@ export async function updateInventoryItem(
     .update(productsTable)
     .set({ ...values, updatedAt: new Date() })
     .where(eq(productsTable.id, productId));
+}
+
+export async function updateReferralCodeSettings(
+  referralCodeId: string,
+  values: { active: boolean; allowReconstitutionSolution: boolean },
+) {
+  await db.update(referralCodes).set(values).where(eq(referralCodes.id, referralCodeId));
 }
 
 async function getOrderById(orderId: string): Promise<OrderWithItems | null> {
