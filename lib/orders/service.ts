@@ -13,6 +13,7 @@ import {
   type DbOrderItem,
   type DbProduct,
   type DbReferralCode,
+  type DbReferralPartner,
 } from "@/lib/db/schema";
 import { sendAdminNewOrder, sendOrderConfirmation } from "@/lib/email/orders";
 import {
@@ -57,6 +58,23 @@ export type OrderWithItems = DbOrder & { items: DbOrderItem[] };
 export type ReferralCodeWithPartner = DbReferralCode & {
   partnerName: string;
   partnerEmail: string | null;
+};
+
+export type NewReferralPartnerInput = {
+  name: string;
+  email?: string | null;
+  notes?: string | null;
+  active: boolean;
+};
+
+export type NewReferralCodeInput = {
+  partnerId: string;
+  code: string;
+  discountType: "percent" | "fixed";
+  discountValue: number;
+  minSubtotalCents: number;
+  allowReconstitutionSolution: boolean;
+  active: boolean;
 };
 
 export async function seedCatalogProducts() {
@@ -235,6 +253,10 @@ export async function listInventory(): Promise<DbProduct[]> {
   return db.select().from(productsTable).orderBy(productsTable.category, productsTable.name);
 }
 
+export async function listReferralPartners(): Promise<DbReferralPartner[]> {
+  return db.select().from(referralPartners).orderBy(referralPartners.name);
+}
+
 export async function listReferralCodes(): Promise<ReferralCodeWithPartner[]> {
   return db
     .select({
@@ -254,6 +276,36 @@ export async function listReferralCodes(): Promise<ReferralCodeWithPartner[]> {
     .from(referralCodes)
     .innerJoin(referralPartners, eq(referralCodes.partnerId, referralPartners.id))
     .orderBy(referralCodes.code);
+}
+
+export async function createReferralPartner(values: NewReferralPartnerInput) {
+  const inserted = await db
+    .insert(referralPartners)
+    .values({
+      name: values.name,
+      email: values.email || null,
+      notes: values.notes || null,
+      active: values.active,
+    })
+    .returning();
+  return inserted[0] ?? null;
+}
+
+export async function createReferralCode(values: NewReferralCodeInput) {
+  const normalizedCode = normalizeReferralCode(values.code);
+  const inserted = await db
+    .insert(referralCodes)
+    .values({
+      partnerId: values.partnerId,
+      code: normalizedCode,
+      discountType: values.discountType,
+      discountValue: values.discountValue,
+      minSubtotalCents: values.minSubtotalCents,
+      allowReconstitutionSolution: values.allowReconstitutionSolution,
+      active: values.active,
+    })
+    .returning();
+  return inserted[0] ?? null;
 }
 
 export async function markOrderPaid(orderId: string) {

@@ -156,6 +156,7 @@ export const orderItems = pgTable("order_items", {
 
 export type DbProduct = InferSelectModel<typeof productsTable>;
 export type NewDbProduct = InferInsertModel<typeof productsTable>;
+export type DbReferralPartner = InferSelectModel<typeof referralPartners>;
 export type DbReferralCode = InferSelectModel<typeof referralCodes>;
 export type DbOrder = InferSelectModel<typeof orders>;
 export type DbOrderItem = InferSelectModel<typeof orderItems>;
