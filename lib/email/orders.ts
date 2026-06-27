@@ -1,7 +1,15 @@
 import { Resend } from "resend";
 import { formatPrice } from "@/lib/products";
 import type { OrderWithItems } from "@/lib/orders/service";
-import { siteUrl, trackingUrl, venmoHandle, venmoLink, zelleRecipient } from "@/lib/orders/config";
+import {
+  orderStatusLabel,
+  siteUrl,
+  trackingUrl,
+  venmoHandle,
+  venmoLink,
+  zelleRecipient,
+  type OrderStatus,
+} from "@/lib/orders/config";
 
 const ruoFooter =
   "For Research Use Only. Not for human or veterinary use. Products are intended strictly for in-vitro laboratory research and development.";
@@ -11,6 +19,10 @@ type SendArgs = {
   subject: string;
   html: string;
   idempotencyKey: string;
+};
+
+type EmailOptions = {
+  idempotencyKey?: string;
 };
 
 async function sendEmail({ to, subject, html, idempotencyKey }: SendArgs) {
@@ -89,11 +101,34 @@ export async function sendAdminNewOrder(order: OrderWithItems) {
   });
 }
 
-export async function sendPaymentReceived(order: OrderWithItems) {
+export async function sendPendingPaymentReceipt(order: OrderWithItems, options: EmailOptions = {}) {
   await sendEmail({
     to: order.email,
-    subject: `Payment received for ${order.reference}`,
-    idempotencyKey: `payment-received/${order.reference}`,
+    subject: `Order ${order.reference} is pending payment`,
+    idempotencyKey: options.idempotencyKey ?? `order-pending-payment/${order.reference}`,
+    html: layout(
+      "Payment pending",
+      `
+        <p>Order <strong>${order.reference}</strong> is marked as <strong>pending payment</strong>.</p>
+        ${orderSummary(order)}
+        <div class="panel">
+          <h2>Manual payment</h2>
+          <p><strong>Zelle:</strong> ${escapeHtml(zelleRecipient())}</p>
+          <p><strong>Venmo:</strong> ${escapeHtml(venmoHandle())}</p>
+          <p>Send <strong>${formatPrice(order.totalCents)}</strong> and include <strong>${order.reference}</strong> in the payment note.</p>
+          <p><a href="${venmoLink(order.totalCents, order.reference)}">Open Venmo with amount prefilled</a></p>
+        </div>
+        <p><a href="${siteUrl()}/order/${order.reference}?email=${encodeURIComponent(order.email)}">View order details</a></p>
+      `,
+    ),
+  });
+}
+
+export async function sendPaymentReceived(order: OrderWithItems, options: EmailOptions = {}) {
+  await sendEmail({
+    to: order.email,
+    subject: `Payment receipt for ${order.reference}`,
+    idempotencyKey: options.idempotencyKey ?? `payment-received/${order.reference}`,
     html: layout(
       "Payment received",
       `
@@ -104,12 +139,12 @@ export async function sendPaymentReceived(order: OrderWithItems) {
   });
 }
 
-export async function sendOrderShipped(order: OrderWithItems) {
+export async function sendOrderShipped(order: OrderWithItems, options: EmailOptions = {}) {
   const link = trackingUrl(order.carrier, order.trackingNumber);
   await sendEmail({
     to: order.email,
     subject: `Order ${order.reference} shipped`,
-    idempotencyKey: `order-shipped/${order.reference}`,
+    idempotencyKey: options.idempotencyKey ?? `order-shipped/${order.reference}`,
     html: layout(
       "Order shipped",
       `
@@ -125,16 +160,61 @@ export async function sendOrderShipped(order: OrderWithItems) {
   });
 }
 
-export async function sendOrderCancelled(order: OrderWithItems) {
+export async function sendOrderCancelled(order: OrderWithItems, options: EmailOptions = {}) {
   await sendEmail({
     to: order.email,
-    subject: `Order ${order.reference} cancelled`,
-    idempotencyKey: `order-cancelled/${order.reference}`,
+    subject: `Order ${order.reference} canceled`,
+    idempotencyKey: options.idempotencyKey ?? `order-cancelled/${order.reference}`,
     html: layout(
-      "Order cancelled",
+      "Order canceled",
       `
-        <p>Order <strong>${order.reference}</strong> has been cancelled. If payment was already sent, contact support with your order reference.</p>
+        <p>Order <strong>${order.reference}</strong> has been canceled. If payment was already sent, contact support with your order reference.</p>
         ${orderSummary(order)}
+      `,
+    ),
+  });
+}
+
+export async function sendAdminOrderStatusUpdate(
+  order: OrderWithItems,
+  previousStatus: OrderStatus,
+  options: EmailOptions = {},
+) {
+  const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL;
+  if (!adminEmail) {
+    console.warn(`ADMIN_NOTIFICATION_EMAIL missing; skipped admin status email for ${order.reference}.`);
+    return;
+  }
+
+  const link = trackingUrl(order.carrier, order.trackingNumber);
+  const currentLabel = orderStatusLabel(order.status);
+  const previousLabel = orderStatusLabel(previousStatus);
+
+  await sendEmail({
+    to: adminEmail,
+    subject: `Order ${order.reference} marked ${currentLabel}`,
+    idempotencyKey: options.idempotencyKey ?? `admin-order-status/${order.reference}/${order.status}`,
+    html: layout(
+      "Order status updated",
+      `
+        <p>Order <strong>${order.reference}</strong> changed from <strong>${escapeHtml(previousLabel)}</strong> to <strong>${escapeHtml(currentLabel)}</strong>.</p>
+        <div class="panel">
+          <p><strong>Reference:</strong> ${order.reference}</p>
+          <p><strong>Customer:</strong> ${escapeHtml(order.email)}</p>
+          <p><strong>Total:</strong> ${formatPrice(order.totalCents)}</p>
+          <p><strong>Status:</strong> ${escapeHtml(currentLabel)}</p>
+          ${
+            order.status === "shipped"
+              ? `
+                <p><strong>Carrier:</strong> ${escapeHtml(order.carrier || "")}</p>
+                <p><strong>Tracking:</strong> ${escapeHtml(order.trackingNumber || "")}</p>
+                ${link ? `<p><a href="${link}">Track shipment</a></p>` : ""}
+              `
+              : ""
+          }
+        </div>
+        ${orderSummary(order)}
+        <p><a href="${siteUrl()}/admin/orders">Open admin dashboard</a></p>
       `,
     ),
   });

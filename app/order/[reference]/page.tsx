@@ -3,7 +3,13 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { formatPrice } from "@/lib/products";
 import { getOrderByReference } from "@/lib/orders/service";
-import { trackingUrl, venmoHandle, venmoLink, zelleRecipient } from "@/lib/orders/config";
+import {
+  orderStatusLabel,
+  trackingUrl,
+  venmoHandle,
+  venmoLink,
+  zelleRecipient,
+} from "@/lib/orders/config";
 import { getCurrentUser } from "@/lib/auth/session";
 
 export const dynamic = "force-dynamic";
@@ -42,7 +48,7 @@ export default async function OrderPage({ params, searchParams }: Props) {
     <div className="confirm" style={{ textAlign: "left" }}>
       <p className="eyebrow">Order details</p>
       <h1>Order {order.reference}</h1>
-      <span className="ref">{order.status.replace("_", " ")}</span>
+      <span className="ref">{orderStatusLabel(order.status)}</span>
 
       <div className="pay-grid">
         <div className="pay-card">

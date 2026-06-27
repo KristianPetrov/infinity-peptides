@@ -9,6 +9,7 @@ import {
   markOrderPaid,
   markOrderShipped,
   updateInventoryItem,
+  updateOrderStatus,
   updateReferralCodeSettings,
 } from "@/lib/orders/service";
 import { requireAdmin } from "@/lib/admin/auth";
@@ -38,6 +39,17 @@ export async function shipOrderAction(formData: FormData) {
 export async function cancelOrderAction(formData: FormData) {
   await requireAdmin();
   await cancelOrder(String(formData.get("orderId") || ""));
+  revalidatePath("/admin/orders");
+  revalidatePath("/admin/inventory");
+}
+
+export async function updateOrderStatusAction(formData: FormData) {
+  await requireAdmin();
+  await updateOrderStatus(String(formData.get("orderId") || ""), {
+    status: String(formData.get("status") || ""),
+    carrier: String(formData.get("carrier") || ""),
+    trackingNumber: String(formData.get("trackingNumber") || ""),
+  });
   revalidatePath("/admin/orders");
   revalidatePath("/admin/inventory");
 }

@@ -3,8 +3,25 @@ export const SHIPPING_METHODS = {
   overnight: { label: "Overnight shipping", note: "Priority - next business day", cents: 5000 },
 } as const;
 
+export const ORDER_STATUSES = ["pending_payment", "paid", "shipped", "cancelled"] as const;
+
+export const ORDER_STATUS_OPTIONS = [
+  { value: "pending_payment", label: "Pending" },
+  { value: "paid", label: "Paid" },
+  { value: "shipped", label: "Shipped" },
+  { value: "cancelled", label: "Canceled" },
+] as const;
+
+export const SHIPPING_CARRIERS = ["USPS", "UPS", "FedEx", "DHL"] as const;
+
 export type ShippingMethod = keyof typeof SHIPPING_METHODS;
 export type PaymentMethod = "zelle" | "venmo";
+export type OrderStatus = (typeof ORDER_STATUSES)[number];
+export type ShippingCarrier = (typeof SHIPPING_CARRIERS)[number];
+
+export function orderStatusLabel(status: OrderStatus) {
+  return ORDER_STATUS_OPTIONS.find((option) => option.value === status)?.label ?? status;
+}
 
 export function zelleRecipient() {
   return process.env.NEXT_PUBLIC_ZELLE_RECIPIENT || "payments@infinity-peptides.com";

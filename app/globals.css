@@ -2062,7 +2062,7 @@ img {
 
 .admin-stats {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 16px;
   margin: 26px 0;
 }
@@ -2171,13 +2171,29 @@ img {
   margin-top: 18px;
 }
 
-.ship-form {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+.order-status-form {
+  width: 100%;
+  display: grid;
+  gap: 12px;
 }
 
-.ship-form input,
+.order-status-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(160px, 1fr));
+  gap: 10px;
+  align-items: end;
+}
+
+.order-status-grid label {
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.order-status-grid input,
+.order-status-grid select,
 .inventory-row input[type="number"],
 .track-card input {
   padding: 10px 12px;
@@ -2629,6 +2645,7 @@ img {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .inventory-row,
+  .order-status-grid,
   .referral-row {
     grid-template-columns: 1fr 1fr;
   }
@@ -2720,6 +2737,7 @@ img {
   }
   .admin-stats,
   .inventory-row,
+  .order-status-grid,
   .referral-row {
     grid-template-columns: 1fr;
   }

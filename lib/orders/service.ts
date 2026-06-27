@@ -15,15 +15,29 @@ import {
   type DbReferralCode,
   type DbReferralPartner,
 } from "@/lib/db/schema";
-import { sendAdminNewOrder, sendOrderConfirmation } from "@/lib/email/orders";
 import {
+  sendAdminNewOrder,
+  sendAdminOrderStatusUpdate,
   sendOrderCancelled,
+  sendOrderConfirmation,
+  sendPendingPaymentReceipt,
   sendOrderShipped,
   sendPaymentReceived,
 } from "@/lib/email/orders";
-import { SHIPPING_METHODS } from "./config";
+import {
+  ORDER_STATUSES,
+  SHIPPING_CARRIERS,
+  SHIPPING_METHODS,
+  type OrderStatus,
+} from "./config";
 
 const REF_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+const updateOrderStatusSchema = z.object({
+  status: z.enum(ORDER_STATUSES),
+  carrier: z.string().trim().optional(),
+  trackingNumber: z.string().trim().optional(),
+});
+const shippingCarrierSchema = z.enum(SHIPPING_CARRIERS);
 
 export const checkoutPayloadSchema = z.object({
   items: z
@@ -75,6 +89,12 @@ export type NewReferralCodeInput = {
   minSubtotalCents: number;
   allowReconstitutionSolution: boolean;
   active: boolean;
+};
+
+export type UpdateOrderStatusInput = {
+  status: string;
+  carrier?: string | null;
+  trackingNumber?: string | null;
 };
 
 export async function seedCatalogProducts() {
@@ -308,33 +328,77 @@ export async function createReferralCode(values: NewReferralCodeInput) {
   return inserted[0] ?? null;
 }
 
-export async function markOrderPaid(orderId: string) {
-  await db
-    .update(orders)
-    .set({ status: "paid", updatedAt: new Date() })
-    .where(eq(orders.id, orderId));
-  const order = await getOrderById(orderId);
-  if (order) await sendPaymentReceived(order);
-}
+export async function updateOrderStatus(orderId: string, values: UpdateOrderStatusInput) {
+  const existing = await getOrderById(orderId);
+  if (!existing) throw new Error("Order not found.");
 
-export async function markOrderShipped(orderId: string, carrier: string, trackingNumber: string) {
+  const input = updateOrderStatusSchema.parse({
+    status: values.status,
+    carrier: values.carrier ?? undefined,
+    trackingNumber: values.trackingNumber ?? undefined,
+  });
+  const previousStatus = existing.status;
+  const nextStatus = input.status;
+  const nextCarrier = input.carrier || null;
+  const nextTrackingNumber = input.trackingNumber || null;
+
+  if (nextStatus === "shipped") {
+    if (!nextCarrier) throw new Error("Choose a shipping carrier before marking shipped.");
+    if (!shippingCarrierSchema.safeParse(nextCarrier).success) {
+      throw new Error("Choose a supported shipping carrier.");
+    }
+    if (!nextTrackingNumber) {
+      throw new Error("Enter a tracking number before marking shipped.");
+    }
+  }
+
+  const carrier = nextStatus === "shipped" ? nextCarrier : null;
+  const trackingNumber = nextStatus === "shipped" ? nextTrackingNumber : null;
+  const statusChanged = previousStatus !== nextStatus;
+  const shippingChanged =
+    nextStatus === "shipped" &&
+    (existing.carrier !== carrier || existing.trackingNumber !== trackingNumber);
+
+  if (!statusChanged && !shippingChanged) return existing;
+
+  if (previousStatus !== "cancelled" && nextStatus === "cancelled") {
+    await restockOrderItems(existing);
+  }
+
+  if (previousStatus === "cancelled" && nextStatus !== "cancelled") {
+    await reserveOrderItems(existing);
+  }
+
   await db
     .update(orders)
     .set({
-      status: "shipped",
+      status: nextStatus,
       carrier,
       trackingNumber,
       updatedAt: new Date(),
     })
     .where(eq(orders.id, orderId));
-  const order = await getOrderById(orderId);
-  if (order) await sendOrderShipped(order);
+
+  const updated = await getOrderById(orderId);
+  if (!updated) throw new Error("Order could not be updated.");
+
+  await sendStatusChangeEmails(updated, previousStatus);
+  return updated;
+}
+
+export async function markOrderPaid(orderId: string) {
+  return updateOrderStatus(orderId, { status: "paid" });
+}
+
+export async function markOrderShipped(orderId: string, carrier: string, trackingNumber: string) {
+  return updateOrderStatus(orderId, { status: "shipped", carrier, trackingNumber });
 }
 
 export async function cancelOrder(orderId: string) {
-  const order = await getOrderById(orderId);
-  if (!order || order.status === "cancelled") return;
+  return updateOrderStatus(orderId, { status: "cancelled" });
+}
 
+async function restockOrderItems(order: OrderWithItems) {
   for (const item of order.items) {
     const rows = await db
       .select({ id: productsTable.id })
@@ -352,14 +416,58 @@ export async function cancelOrder(orderId: string) {
         .where(eq(productsTable.id, product.id));
     }
   }
+}
 
-  await db
-    .update(orders)
-    .set({ status: "cancelled", updatedAt: new Date() })
-    .where(eq(orders.id, orderId));
+async function reserveOrderItems(order: OrderWithItems) {
+  for (const item of order.items) {
+    const rows = await db
+      .select({ id: productsTable.id, inventory: productsTable.inventory })
+      .from(productsTable)
+      .where(eq(productsTable.slug, item.slug))
+      .limit(1);
+    const product = rows[0];
+    if (!product) throw new Error(`${item.name} is no longer available in inventory.`);
+    if (product.inventory < item.quantity) {
+      throw new Error(`${item.name} has only ${product.inventory} in stock.`);
+    }
+  }
 
-  const cancelled = await getOrderById(orderId);
-  if (cancelled) await sendOrderCancelled(cancelled);
+  for (const item of order.items) {
+    await db
+      .update(productsTable)
+      .set({
+        inventory: sql`${productsTable.inventory} - ${item.quantity}`,
+        updatedAt: new Date(),
+      })
+      .where(eq(productsTable.slug, item.slug));
+  }
+}
+
+async function sendStatusChangeEmails(order: OrderWithItems, previousStatus: OrderStatus) {
+  const keySuffix = `${order.reference}/${order.updatedAt.getTime()}`;
+  const customerEmail =
+    order.status === "pending_payment"
+      ? sendPendingPaymentReceipt(order, {
+          idempotencyKey: `order-pending-payment/${keySuffix}`,
+        })
+      : order.status === "paid"
+        ? sendPaymentReceived(order, {
+            idempotencyKey: `payment-received/${keySuffix}`,
+          })
+        : order.status === "shipped"
+          ? sendOrderShipped(order, {
+              idempotencyKey: `order-shipped/${keySuffix}`,
+            })
+          : sendOrderCancelled(order, {
+              idempotencyKey: `order-cancelled/${keySuffix}`,
+            });
+
+  await Promise.all([
+    customerEmail,
+    sendAdminOrderStatusUpdate(order, previousStatus, {
+      idempotencyKey: `admin-order-status/${keySuffix}`,
+    }),
+  ]);
 }
 
 export async function updateInventoryItem(

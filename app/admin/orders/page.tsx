@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import { formatPrice } from "@/lib/products";
 import { requireAdmin } from "@/lib/admin/auth";
 import { listOrders } from "@/lib/orders/service";
-import { cancelOrderAction, markPaidAction, shipOrderAction } from "../actions";
+import { orderStatusLabel, trackingUrl } from "@/lib/orders/config";
 import { AdminShell } from "../AdminShell";
+import { OrderStatusForm } from "./OrderStatusForm";
 
 export const metadata: Metadata = {
   title: "Admin Orders",
@@ -18,6 +19,7 @@ export default async function AdminOrdersPage() {
     pending: orders.filter((o) => o.status === "pending_payment").length,
     paid: orders.filter((o) => o.status === "paid").length,
     shipped: orders.filter((o) => o.status === "shipped").length,
+    canceled: orders.filter((o) => o.status === "cancelled").length,
     revenueCents: orders
       .filter((o) => o.status === "paid" || o.status === "shipped")
       .reduce((sum, o) => sum + o.totalCents, 0),
@@ -29,6 +31,7 @@ export default async function AdminOrdersPage() {
         <Stat label="Pending" value={stats.pending} />
         <Stat label="Paid" value={stats.paid} />
         <Stat label="Shipped" value={stats.shipped} />
+        <Stat label="Canceled" value={stats.canceled} />
         <Stat label="Confirmed revenue" value={formatPrice(stats.revenueCents)} />
       </div>
 
@@ -39,69 +42,65 @@ export default async function AdminOrdersPage() {
             <p className="hint">Orders will appear here after checkout succeeds.</p>
           </div>
         ) : (
-          orders.map((order) => (
-            <article className="admin-card" key={order.id}>
-              <div className="admin-card-head">
-                <div>
-                  <h3>{order.reference}</h3>
-                  <p>{order.email}</p>
+          orders.map((order) => {
+            const shipmentLink = trackingUrl(order.carrier, order.trackingNumber);
+
+            return (
+              <article className="admin-card" key={order.id}>
+                <div className="admin-card-head">
+                  <div>
+                    <h3>{order.reference}</h3>
+                    <p>{order.email}</p>
+                  </div>
+                  <span className="admin-status">{orderStatusLabel(order.status)}</span>
                 </div>
-                <span className="admin-status">{order.status.replace("_", " ")}</span>
-              </div>
 
-              <div className="summary-line">
-                <span>Total</span>
-                <strong>{formatPrice(order.totalCents)}</strong>
-              </div>
-              <div className="summary-line">
-                <span>Payment preference</span>
-                <span>{order.paymentMethod}</span>
-              </div>
-              <div className="summary-line">
-                <span>Created</span>
-                <span>{new Date(order.createdAt).toLocaleString()}</span>
-              </div>
-
-              <div className="admin-items">
-                {order.items.map((item) => (
-                  <span key={item.id}>
-                    {item.name} {item.quantity}x
-                  </span>
-                ))}
-              </div>
-
-              <div className="admin-actions">
-                {order.status === "pending_payment" ? (
-                  <form action={markPaidAction}>
-                    <input type="hidden" name="orderId" value={order.id} />
-                    <button type="submit" className="card-cta card-cta-buy">
-                      Mark paid
-                    </button>
-                  </form>
+                <div className="summary-line">
+                  <span>Total</span>
+                  <strong>{formatPrice(order.totalCents)}</strong>
+                </div>
+                <div className="summary-line">
+                  <span>Payment preference</span>
+                  <span>{order.paymentMethod}</span>
+                </div>
+                <div className="summary-line">
+                  <span>Created</span>
+                  <span>{new Date(order.createdAt).toLocaleString()}</span>
+                </div>
+                {order.status === "shipped" ? (
+                  <div className="summary-line">
+                    <span>Tracking</span>
+                    {shipmentLink ? (
+                      <a href={shipmentLink} target="_blank" rel="noreferrer">
+                        {order.carrier} {order.trackingNumber}
+                      </a>
+                    ) : (
+                      <span>
+                        {order.carrier} {order.trackingNumber}
+                      </span>
+                    )}
+                  </div>
                 ) : null}
 
-                {order.status === "paid" ? (
-                  <form action={shipOrderAction} className="ship-form">
-                    <input type="hidden" name="orderId" value={order.id} />
-                    <input name="carrier" placeholder="Carrier" required />
-                    <input name="trackingNumber" placeholder="Tracking number" required />
-                    <button type="submit" className="card-cta card-cta-buy">
-                      Mark shipped
-                    </button>
-                  </form>
-                ) : null}
+                <div className="admin-items">
+                  {order.items.map((item) => (
+                    <span key={item.id}>
+                      {item.name} {item.quantity}x
+                    </span>
+                  ))}
+                </div>
 
-                {order.status !== "cancelled" && order.status !== "shipped" ? (
-                  <form action={cancelOrderAction}>
-                    <input type="hidden" name="orderId" value={order.id} />
-                    <button type="submit" className="card-cta">
-                      Cancel
-                    </button>
-                  </form>
-                ) : null}
-              </div>
-            </article>
-          ))
+                <div className="admin-actions">
+                  <OrderStatusForm
+                    orderId={order.id}
+                    status={order.status}
+                    carrier={order.carrier}
+                    trackingNumber={order.trackingNumber}
+                  />
+                </div>
+              </article>
+            );
+          })
         )}
       </div>
     </AdminShell>
