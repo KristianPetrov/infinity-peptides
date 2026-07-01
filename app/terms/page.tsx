@@ -43,9 +43,27 @@ export default function TermsPage() {
 
         <h2>Shipping</h2>
         <p>
-          Orders are prepared for shipment after payment is verified. Shipping
-          timelines depend on the selected method and destination. A tracking
-          reference is issued once an order ships.
+          Please allow 24 hours to 48 hours to update tracking number Please
+          double check your address to avoid delays. If package is returned to
+          sender, we&apos;re not responsible for any additional shipping fees.
+        </p>
+        <p>
+          We&apos;re not responsible for any lost or stolen packages. If your
+          package is lost or stolen. Please contact USPS directly.
+        </p>
+        <p>
+          We can always help you file a claim if your package is insured.
+        </p>
+        <p>
+          Please let us know if you prefer other carriers like UPS, or FEDEX.
+          Extra shipping difference will be your responsibility.
+        </p>
+        <p>
+          Please contact us within 24-48 hours of receiving your package for any
+          damage items.
+        </p>
+        <p>
+          Thank you for your support!
         </p>
 
         <h2>Returns</h2>

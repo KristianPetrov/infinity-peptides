@@ -95,13 +95,42 @@ export default async function ProductPage({ params }: Params) {
             </div>
             <div>
               <span>Form</span>
-              <span>Lyophilized powder</span>
+              <span>{product.form ?? "Lyophilized powder"}</span>
             </div>
             <div>
               <span>Status</span>
               <span>Research Use Only</span>
             </div>
           </div>
+
+          {product.ingredients ? (
+            <section className="pdp-spec-panel" aria-labelledby="ingredients-heading">
+              <h2 id="ingredients-heading">Ingredients</h2>
+              <ul className="ingredient-list">
+                {product.ingredients.map((ingredient) => (
+                  <li key={ingredient}>{ingredient}</li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
+
+          {product.certificateOfAnalysis ? (
+            <section className="pdp-spec-panel" aria-labelledby="coa-heading">
+              <h2 id="coa-heading">Certificate of Analysis</h2>
+              <p>
+                Search code:{" "}
+                <strong>{product.certificateOfAnalysis.code}</strong>
+              </p>
+              <a
+                className="coa-link"
+                href={product.certificateOfAnalysis.url}
+                target="_blank"
+                rel="noreferrer"
+              >
+                View COA
+              </a>
+            </section>
+          ) : null}
 
           <p className="pdp-ruo">
             <strong>For Research Use Only.</strong> Not for human or veterinary

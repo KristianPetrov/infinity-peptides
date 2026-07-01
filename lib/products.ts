@@ -10,15 +10,24 @@ export type Category =
   | "Research Support"
   | "Cognitive Research";
 
+export type CertificateOfAnalysis = {
+  code: string;
+  url: string;
+  provider: string;
+};
+
 export type Product = {
   slug: string;
   name: string;
   strength: string;
   priceCents?: number; // undefined => inquiry-only
   imageSrc?: string;
+  form?: string;
   category: Category;
   tag: string; // short descriptor shown on cards
   description: string; // RUO-safe research description
+  ingredients?: string[];
+  certificateOfAnalysis?: CertificateOfAnalysis;
   featured?: boolean;
 };
 
@@ -49,8 +58,10 @@ export const CATEGORY_BLURB: Record<Category, string> = {
 const PRODUCT_IMAGE_BY_SLUG: Partial<Record<string, string>> = {
   "aod-9604-10mg": "/products/aod-9604-10mg.png",
   "bac-water-10ml": "/products/bac-water-10ml.png",
+  "bac-water-3ml": "/products/bac-water-3ml.png",
   "bacteriostatic-water-10ml": "/products/bacteriostatic-water-10ml.png",
   "bacteriostatic-water-20ml": "/products/bacteriostatic-water-20ml.png",
+  "ahk-cu-100mg": "/products/ahk-cu-100mg.png",
   "bpc-157-10mg": "/products/bpc-157-10mg.png",
   "bpc-157-tb-500-10mg": "/products/bpc-tb-500-10mg-10mg.png",
   "bpc-157-tb-500-5mg": "/products/bpc-tb-500-5mg-5mg.png",
@@ -67,6 +78,7 @@ const PRODUCT_IMAGE_BY_SLUG: Partial<Record<string, string>> = {
   kisspeptin: "/products/kisspeptin-10mg.png",
   klow: "/products/klow-80mg.png",
   "l-carnitine": "/products/l-carnitine-500mg.png",
+  "lipo-b-10ml": "/products/lipo-b-10ml.png",
   "lipo-c-10ml": "/products/lipo-c-10ml.png",
   "mots-c-10mg": "/products/mots-c-10mg.png",
   "mots-c-40mg": "/products/mots-c-40mg.png",
@@ -76,6 +88,8 @@ const PRODUCT_IMAGE_BY_SLUG: Partial<Record<string, string>> = {
   "retatrutide-10mg": "/products/retatrutide-10mg.png",
   "retatrutide-20mg": "/products/retatrutide-20mg.png",
   "retatrutide-30mg": "/products/retatrutide-30mg.png",
+  "retatrutide-cagrilintide-5mg-5mg":
+    "/products/retatrutide-cagrilintide-5mg-5mg.png",
   "selank-10mg": "/products/selank-10mg.png",
   "semaglutide-10mg": "/products/semaglutide-10mg.png",
   "semaglutide-20mg": "/products/semaglutide-20mg.png",
@@ -90,6 +104,17 @@ const PRODUCT_IMAGE_BY_SLUG: Partial<Record<string, string>> = {
   "tirzepatide-30mg": "/products/tirzepatide-30mg.png",
 };
 
+const FREEDOM_DIAGNOSTICS_COA_BASE_URL =
+  "https://coas.freedomdiagnosticstesting.com";
+
+function freedomDiagnosticsCoa(code: string): CertificateOfAnalysis {
+  return {
+    code,
+    provider: "Freedom Diagnostics Testing",
+    url: `${FREEDOM_DIAGNOSTICS_COA_BASE_URL}/${encodeURIComponent(code)}.pdf`,
+  };
+}
+
 const catalogProducts: Product[] = [
   // ---------------- Metabolic Research ----------------
   {
@@ -101,6 +126,7 @@ const catalogProducts: Product[] = [
     tag: "Triple-agonist (GIP / GLP-1 / glucagon)",
     description:
       "Retatrutide is a triple-agonist research peptide engaging GIP, GLP-1, and glucagon receptor pathways. A frequently referenced compound in preclinical metabolic and energy-balance investigations.",
+    certificateOfAnalysis: freedomDiagnosticsCoa("Infi2604080229"),
     featured: true,
   },
   {
@@ -185,6 +211,16 @@ const catalogProducts: Product[] = [
       "Cagrilintide is a long-acting amylin analog studied in preclinical satiety-signaling and metabolic research models.",
   },
   {
+    slug: "retatrutide-cagrilintide-5mg-5mg",
+    name: "Retatrutide + Cagrilintide",
+    strength: "5 mg + 5 mg",
+    priceCents: 5000,
+    category: "Metabolic Research",
+    tag: "Triple-agonist + amylin analog blend",
+    description:
+      "A combined Retatrutide and Cagrilintide reference vial for comparative metabolic research into incretin, glucagon, and amylin-signaling pathways.",
+  },
+  {
     slug: "aod-9604-10mg",
     name: "AOD-9604",
     strength: "10 mg",
@@ -224,13 +260,41 @@ const catalogProducts: Product[] = [
       "GLP-3 is a GLP-series reference peptide intended for comparative metabolic-pathway and incretin-family research models.",
   },
   {
+    slug: "lipo-b-10ml",
+    name: "Lipo-B",
+    strength: "10 mL",
+    priceCents: 4500,
+    form: "Research blend solution",
+    category: "Metabolic Research",
+    tag: "B-vitamin lipotropic research blend",
+    description:
+      "Lipo-B is a research blend referenced in laboratory investigations of B-vitamin cofactors, amino acids, and lipotropic compound pathways.",
+    ingredients: [
+      "L-Carnitine 20 mg",
+      "L-Arginine 20 mg",
+      "Methionine 25 mg",
+      "Inositol 50 mg",
+      "Choline 50 mg",
+      "B6 (Pyridoxine) 25 mg",
+      "B5 (Dexpanthenol) 25 mg",
+      "B12 (Methylcobalamin) 1 mg",
+    ],
+  },
+  {
     slug: "lipo-c-10ml",
     name: "Lipo-C",
     strength: "10 mL",
+    form: "Research blend solution",
     category: "Metabolic Research",
     tag: "Lipotropic research blend",
     description:
       "Lipo-C is a research blend referenced in laboratory investigations of lipotropic compounds and cellular energy-metabolism pathways.",
+    ingredients: [
+      "Methionine 15 mg",
+      "Choline Chloride 50 mg",
+      "Carnitine 50 mg",
+      "Dexpanthenol 5 mg",
+    ],
   },
 
   // ---------------- Repair & Matrix ----------------
@@ -304,6 +368,7 @@ const catalogProducts: Product[] = [
     tag: "Copper-binding tripeptide",
     description:
       "GHK-Cu is a naturally occurring copper-binding tripeptide referenced in dermal-regeneration, collagen-remodeling, and anti-inflammatory research.",
+    certificateOfAnalysis: freedomDiagnosticsCoa("Infi2604270279"),
   },
   {
     slug: "ghk-cu-100mg",
@@ -314,6 +379,16 @@ const catalogProducts: Product[] = [
     tag: "Copper peptide (high concentration)",
     description:
       "A high-concentration GHK-Cu vial for extended copper-peptide research into collagen remodeling and dermal regeneration.",
+  },
+  {
+    slug: "ahk-cu-100mg",
+    name: "AHK-Cu",
+    strength: "100 mg",
+    priceCents: 4000,
+    category: "Repair & Matrix",
+    tag: "Copper-binding tripeptide analog",
+    description:
+      "AHK-Cu is a copper-binding tripeptide analog referenced in matrix, follicular, and dermal-signaling research models.",
   },
 
   // ---------------- Growth & Signaling ----------------
@@ -366,6 +441,7 @@ const catalogProducts: Product[] = [
     tag: "Stabilized GHRH analog",
     description:
       "Tesamorelin is a stabilized growth-hormone-releasing hormone analog referenced in metabolic and adipose-tissue research.",
+    certificateOfAnalysis: freedomDiagnosticsCoa("Infi2604080230"),
   },
   {
     slug: "kisspeptin",
@@ -467,15 +543,28 @@ const catalogProducts: Product[] = [
     slug: "bac-water-10ml",
     name: "BAC Water",
     strength: "10 mL",
+    form: "Laboratory support solution",
     category: "Research Support",
     tag: "Laboratory diluent reference",
     description:
       "BAC Water is an ancillary laboratory reference material for qualified research workflows involving lyophilized compounds.",
   },
   {
+    slug: "bac-water-3ml",
+    name: "BAC Water",
+    strength: "3 mL",
+    priceCents: 500,
+    form: "Laboratory support solution",
+    category: "Research Support",
+    tag: "Laboratory diluent reference",
+    description:
+      "A 3 mL BAC Water reference material for qualified research workflows involving lyophilized compounds.",
+  },
+  {
     slug: "bacteriostatic-water-10ml",
     name: "Bacteriostatic Sodium Chloride",
     strength: "10 mL",
+    form: "Laboratory support solution",
     category: "Research Support",
     tag: "Support solution reference",
     description:
@@ -485,6 +574,7 @@ const catalogProducts: Product[] = [
     slug: "bacteriostatic-water-20ml",
     name: "Bacteriostatic Sodium Chloride",
     strength: "20 mL",
+    form: "Laboratory support solution",
     category: "Research Support",
     tag: "Support solution reference",
     description:
