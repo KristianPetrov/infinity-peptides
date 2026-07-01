@@ -368,7 +368,7 @@ const catalogProducts: Product[] = [
     tag: "Copper-binding tripeptide",
     description:
       "GHK-Cu is a naturally occurring copper-binding tripeptide referenced in dermal-regeneration, collagen-remodeling, and anti-inflammatory research.",
-    certificateOfAnalysis: freedomDiagnosticsCoa("Infi2604270279"),
+    // certificateOfAnalysis: freedomDiagnosticsCoa("Infi2604270279"),
   },
   {
     slug: "ghk-cu-100mg",
