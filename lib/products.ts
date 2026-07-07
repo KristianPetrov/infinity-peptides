@@ -14,6 +14,8 @@ export type CertificateOfAnalysis = {
   code: string;
   url: string;
   provider: string;
+  reportDate?: string;
+  purity?: string;
 };
 
 export type Product = {
@@ -102,16 +104,23 @@ const PRODUCT_IMAGE_BY_SLUG: Partial<Record<string, string>> = {
   "tirzepatide-10mg": "/products/tirzepatide-10mg.png",
   "tirzepatide-20mg": "/products/tirzepatide-20mg.png",
   "tirzepatide-30mg": "/products/tirzepatide-30mg.png",
+  "tirzepatide-40mg": "/products/tirzepatide-30mg.png",
 };
 
 const FREEDOM_DIAGNOSTICS_COA_BASE_URL =
   "https://coas.freedomdiagnosticstesting.com";
 
-function freedomDiagnosticsCoa(code: string): CertificateOfAnalysis {
+function freedomDiagnosticsCoa(
+  code: string,
+  reportDate?: string,
+  purity?: string,
+): CertificateOfAnalysis {
   return {
     code,
     provider: "Freedom Diagnostics Testing",
     url: `${FREEDOM_DIAGNOSTICS_COA_BASE_URL}/${encodeURIComponent(code)}.pdf`,
+    reportDate,
+    purity,
   };
 }
 
@@ -126,7 +135,11 @@ const catalogProducts: Product[] = [
     tag: "Triple-agonist (GIP / GLP-1 / glucagon)",
     description:
       "Retatrutide is a triple-agonist research peptide engaging GIP, GLP-1, and glucagon receptor pathways. A frequently referenced compound in preclinical metabolic and energy-balance investigations.",
-    certificateOfAnalysis: freedomDiagnosticsCoa("Infi2604080229"),
+    certificateOfAnalysis: freedomDiagnosticsCoa(
+      "BGSR2607010572",
+      "07/03/2026",
+      "99.96%",
+    ),
     featured: true,
   },
   {
@@ -138,6 +151,11 @@ const catalogProducts: Product[] = [
     tag: "Triple-agonist (higher concentration)",
     description:
       "A higher-concentration vial of Retatrutide, a triple-agonist research peptide studied across GIP, GLP-1, and glucagon receptor pathways in metabolic models.",
+    certificateOfAnalysis: freedomDiagnosticsCoa(
+      "BGSR2607010574",
+      "07/03/2026",
+      "99.61%",
+    ),
   },
   {
     slug: "retatrutide-30mg",
@@ -148,6 +166,11 @@ const catalogProducts: Product[] = [
     tag: "Triple-agonist (max concentration)",
     description:
       "The highest-concentration Retatrutide vial in the catalog, intended for extended metabolic research protocols comparing triple-agonist signaling.",
+    certificateOfAnalysis: freedomDiagnosticsCoa(
+      "BGSR2607010576",
+      "07/03/2026",
+      "99.49%",
+    ),
   },
   {
     slug: "tirzepatide-10mg",
@@ -158,6 +181,11 @@ const catalogProducts: Product[] = [
     tag: "Dual GIP / GLP-1 agonist",
     description:
       "Tirzepatide is a dual GIP and GLP-1 receptor agonist widely referenced in preclinical metabolic and incretin-signaling research.",
+    certificateOfAnalysis: freedomDiagnosticsCoa(
+      "BGSR2607010598",
+      "07/03/2026",
+      "99.74%",
+    ),
     featured: true,
   },
   {
@@ -169,6 +197,11 @@ const catalogProducts: Product[] = [
     tag: "Dual GIP / GLP-1 (higher concentration)",
     description:
       "A higher-concentration Tirzepatide vial for extended dual-agonist metabolic research protocols.",
+    certificateOfAnalysis: freedomDiagnosticsCoa(
+      "BGSR2607010600",
+      "07/03/2026",
+      "99.95%",
+    ),
   },
   {
     slug: "tirzepatide-30mg",
@@ -176,9 +209,29 @@ const catalogProducts: Product[] = [
     strength: "30 mg",
     priceCents: 7000,
     category: "Metabolic Research",
+    tag: "Dual GIP / GLP-1 (high concentration)",
+    description:
+      "A high-concentration Tirzepatide vial for extended dual-agonist incretin research protocols.",
+    certificateOfAnalysis: freedomDiagnosticsCoa(
+      "BGSR2607010602",
+      "07/03/2026",
+      "99.96%",
+    ),
+  },
+  {
+    slug: "tirzepatide-40mg",
+    name: "Tirzepatide",
+    strength: "40 mg",
+    priceCents: 8400,
+    category: "Metabolic Research",
     tag: "Dual GIP / GLP-1 (max concentration)",
     description:
       "The highest-concentration Tirzepatide vial in the catalog for comparative dual-agonist incretin research.",
+    certificateOfAnalysis: freedomDiagnosticsCoa(
+      "BGSR2607010604",
+      "07/03/2026",
+      "99.83%",
+    ),
   },
   {
     slug: "semaglutide-10mg",
@@ -348,6 +401,11 @@ const catalogProducts: Product[] = [
     tag: "Thymosin Beta-4 fragment",
     description:
       "TB-500 is the synthetic analog of the active region of Thymosin Beta-4, investigated in cellular-migration, vascularization, and recovery research.",
+    certificateOfAnalysis: freedomDiagnosticsCoa(
+      "BGSR2607010578",
+      "07/03/2026",
+      "99.34%",
+    ),
   },
   {
     slug: "bpc-157-10mg",
@@ -379,6 +437,11 @@ const catalogProducts: Product[] = [
     tag: "Copper peptide (high concentration)",
     description:
       "A high-concentration GHK-Cu vial for extended copper-peptide research into collagen remodeling and dermal regeneration.",
+    certificateOfAnalysis: freedomDiagnosticsCoa(
+      "BGSR2607010606",
+      "07/03/2026",
+      "99.80%",
+    ),
   },
   {
     slug: "ahk-cu-100mg",
@@ -401,6 +464,11 @@ const catalogProducts: Product[] = [
     tag: "Selective GH secretagogue",
     description:
       "Ipamorelin is a selective growth-hormone secretagogue and ghrelin-receptor agonist studied for its targeted release profile in endocrine research.",
+    certificateOfAnalysis: freedomDiagnosticsCoa(
+      "BGSR2607010592",
+      "07/03/2026",
+      "99.85%",
+    ),
   },
   {
     slug: "cjc-dac-2mg",
@@ -441,7 +509,11 @@ const catalogProducts: Product[] = [
     tag: "Stabilized GHRH analog",
     description:
       "Tesamorelin is a stabilized growth-hormone-releasing hormone analog referenced in metabolic and adipose-tissue research.",
-    certificateOfAnalysis: freedomDiagnosticsCoa("Infi2604080230"),
+    certificateOfAnalysis: freedomDiagnosticsCoa(
+      "BGSR2607010582",
+      "07/03/2026",
+      "99.80%",
+    ),
   },
   {
     slug: "kisspeptin",
@@ -495,6 +567,11 @@ const catalogProducts: Product[] = [
     tag: "Mitochondrial-derived peptide",
     description:
       "MOTS-c is a mitochondrial-derived peptide studied for its role in metabolic regulation, insulin sensitivity, and cellular-energy research.",
+    certificateOfAnalysis: freedomDiagnosticsCoa(
+      "BGSR2607010594",
+      "07/03/2026",
+      "99.34%",
+    ),
   },
   {
     slug: "mots-c-40mg",
@@ -505,6 +582,11 @@ const catalogProducts: Product[] = [
     tag: "Mitochondrial peptide (high concentration)",
     description:
       "A high-concentration MOTS-c vial for extended mitochondrial and metabolic research protocols.",
+    certificateOfAnalysis: freedomDiagnosticsCoa(
+      "BGSR2607010596",
+      "07/03/2026",
+      "99.63%",
+    ),
     featured: true,
   },
   {
@@ -516,6 +598,11 @@ const catalogProducts: Product[] = [
     tag: "Mitochondria-targeted tetrapeptide",
     description:
       "SS-31 (Elamipretide) is a mitochondria-targeted tetrapeptide referenced in research on cardiolipin stabilization and cellular-energy production.",
+    certificateOfAnalysis: freedomDiagnosticsCoa(
+      "BGSR2607010586",
+      "07/03/2026",
+      "99.89%",
+    ),
   },
   {
     slug: "epitalon",
@@ -591,6 +678,11 @@ const catalogProducts: Product[] = [
     tag: "ACTH(4-10) nootropic peptide",
     description:
       "Semax is a synthetic peptide derived from ACTH(4-10), studied for its influence on BDNF expression and cognitive research models.",
+    certificateOfAnalysis: freedomDiagnosticsCoa(
+      "BGSR2607010584",
+      "07/03/2026",
+      "99.87%",
+    ),
   },
   {
     slug: "selank-10mg",
@@ -601,6 +693,11 @@ const catalogProducts: Product[] = [
     tag: "Tuftsin-analog anxiolytic peptide",
     description:
       "Selank is a synthetic analog of the immunomodulatory peptide tuftsin, referenced in anxiolytic and neuroregulatory research.",
+    certificateOfAnalysis: freedomDiagnosticsCoa(
+      "BGSR2607010590",
+      "07/03/2026",
+      "99.96%",
+    ),
   },
 ];
 

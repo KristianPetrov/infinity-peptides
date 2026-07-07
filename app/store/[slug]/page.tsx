@@ -121,6 +121,18 @@ export default async function ProductPage({ params }: Params) {
                 Search code:{" "}
                 <strong>{product.certificateOfAnalysis.code}</strong>
               </p>
+              {product.certificateOfAnalysis.reportDate ? (
+                <p>
+                  Report date:{" "}
+                  <strong>{product.certificateOfAnalysis.reportDate}</strong>
+                </p>
+              ) : null}
+              {product.certificateOfAnalysis.purity ? (
+                <p>
+                  Purity:{" "}
+                  <strong>{product.certificateOfAnalysis.purity}</strong>
+                </p>
+              ) : null}
               <a
                 className="coa-link"
                 href={product.certificateOfAnalysis.url}
