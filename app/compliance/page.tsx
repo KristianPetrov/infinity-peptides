@@ -5,6 +5,7 @@ export const metadata: Metadata = {
   title: "Research Use Only Policy",
   description:
     "The Infinity Peptides Research Use Only (RUO) policy. All products are for in-vitro laboratory research only.",
+  alternates: { canonical: "/compliance" },
 };
 
 export default function CompliancePage() {

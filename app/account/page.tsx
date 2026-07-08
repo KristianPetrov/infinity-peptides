@@ -7,9 +7,8 @@ import { logoutAction } from "../auth-actions";
 
 export const metadata: Metadata = {
   title: "Account",
+  robots: { index: false, follow: false },
 };
-
-export const dynamic = "force-dynamic";
 
 export default async function AccountPage() {
   const user = await requireUser();

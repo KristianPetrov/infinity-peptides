@@ -1,8 +1,14 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { findOrderForGuest } from "@/lib/orders/service";
 import { Reveal } from "../components/Reveal";
 
-export const dynamic = "force-dynamic";
+export const metadata: Metadata = {
+  title: "Track Your Order",
+  description:
+    "Look up the latest status of your Infinity Peptides order using your order reference and checkout email.",
+  alternates: { canonical: "/track" },
+};
 
 type Props = {
   searchParams: Promise<{ error?: string; reference?: string }>;

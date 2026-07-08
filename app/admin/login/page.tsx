@@ -5,8 +5,6 @@ export const metadata: Metadata = {
   title: "Admin Login",
 };
 
-export const dynamic = "force-dynamic";
-
 type Props = {
   searchParams: Promise<{ error?: string }>;
 };

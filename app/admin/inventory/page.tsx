@@ -9,8 +9,6 @@ export const metadata: Metadata = {
   title: "Admin Inventory",
 };
 
-export const dynamic = "force-dynamic";
-
 export default async function AdminInventoryPage() {
   await requireAdmin();
   const products = await listInventory();

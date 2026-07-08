@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useCart } from "./CartProvider";
 
 const NAV = [
@@ -13,22 +13,46 @@ const NAV = [
   { href: "/track", label: "Track" },
 ];
 
+// usePathname() counts as request data on routes with unknown params, so it
+// lives in its own Suspense boundary to keep the header in the static shell.
+function NavLinks() {
+  const pathname = usePathname();
+  return (
+    <>
+      {NAV.map((item) => (
+        <Link
+          key={item.href}
+          href={item.href}
+          className={pathname.startsWith(item.href) ? "is-active" : ""}
+        >
+          {item.label}
+        </Link>
+      ))}
+    </>
+  );
+}
+
+function PlainNavLinks() {
+  return (
+    <>
+      {NAV.map((item) => (
+        <Link key={item.href} href={item.href}>
+          {item.label}
+        </Link>
+      ))}
+    </>
+  );
+}
+
 type HeaderProps = {
-  userRole?: "customer" | "admin" | null;
+  // Server-rendered auth link (Login / Account / Admin) streamed in via
+  // Suspense so the header shell stays static.
+  authSlot?: React.ReactNode;
 };
 
-export function Header({ userRole = null }: HeaderProps) {
+export function Header({ authSlot = null }: HeaderProps) {
   const { count, hydrated, openDrawer } = useCart();
-  const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const nav = [
-    ...NAV,
-    userRole === "admin"
-      ? { href: "/admin", label: "Admin" }
-      : userRole === "customer"
-        ? { href: "/account", label: "Account" }
-        : { href: "/login", label: "Login" },
-  ];
 
   return (
     <>
@@ -45,21 +69,17 @@ export function Header({ userRole = null }: HeaderProps) {
             alt="Infinity Peptides"
             width={1536}
             height={1024}
+            sizes="46px"
             priority
           />
           <span>Infinity Peptides</span>
         </Link>
 
         <nav className="site-nav" aria-label="Primary navigation">
-          {nav.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={pathname.startsWith(item.href) ? "is-active" : ""}
-            >
-              {item.label}
-            </Link>
-          ))}
+          <Suspense fallback={<PlainNavLinks />}>
+            <NavLinks />
+          </Suspense>
+          {authSlot}
         </nav>
 
         <div className="header-tools">
@@ -90,12 +110,17 @@ export function Header({ userRole = null }: HeaderProps) {
       </header>
 
       {mobileOpen ? (
-        <nav className="mobile-nav" aria-label="Mobile navigation">
-          {nav.map((item) => (
-            <Link key={item.href} href={item.href} onClick={() => setMobileOpen(false)}>
+        <nav
+          className="mobile-nav"
+          aria-label="Mobile navigation"
+          onClick={() => setMobileOpen(false)}
+        >
+          {NAV.map((item) => (
+            <Link key={item.href} href={item.href}>
               {item.label}
             </Link>
           ))}
+          {authSlot}
         </nav>
       ) : null}
     </>

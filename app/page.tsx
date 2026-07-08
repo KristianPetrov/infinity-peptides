@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -8,6 +9,10 @@ import {
 } from "@/lib/products";
 import { ProductCard } from "./components/ProductCard";
 import { Reveal } from "./components/Reveal";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
 
 const VALUE_PROPS = [
   {
@@ -109,6 +114,7 @@ export default function Home() {
               alt="Infinity Peptides"
               width={1536}
               height={1024}
+              sizes="(max-width: 820px) 70vw, 380px"
               priority
             />
             <span className="hero-spark s1" />

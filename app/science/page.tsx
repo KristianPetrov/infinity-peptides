@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   title: "Science & Quality",
   description:
     "Infinity Peptides quality standards: HPLC and mass-spectrometry verification, lyophilization, and lot traceability for Research Use Only compounds.",
+  alternates: { canonical: "/science" },
 };
 
 const STANDARDS = [

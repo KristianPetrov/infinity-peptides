@@ -5,7 +5,9 @@ import {
   formatPrice,
   getProductBySlug,
   products,
+  type Product,
 } from "@/lib/products";
+import { SITE_NAME, SITE_URL, absoluteUrl } from "@/lib/seo";
 import { ProductImage } from "../../components/ProductImage";
 import { ProductBuyPanel } from "../../components/ProductBuyPanel";
 import { ProductCard } from "../../components/ProductCard";
@@ -22,20 +24,64 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const product = getProductBySlug(slug);
   if (!product) return { title: "Product not found" };
   return {
-    title: `${product.name} ${product.strength}`,
+    title: `${product.name} ${product.strength} — Research Use Only`,
     description: product.description,
-    openGraph: product.imageSrc
+    alternates: { canonical: `/store/${product.slug}` },
+    openGraph: {
+      type: "website",
+      url: `/store/${product.slug}`,
+      title: `${product.name} ${product.strength} | ${SITE_NAME}`,
+      description: product.description,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${product.name} ${product.strength} | ${SITE_NAME}`,
+      description: product.description,
+    },
+  };
+}
+
+function productJsonLd(product: Product) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: `${product.name} ${product.strength}`,
+    description: product.description,
+    sku: product.slug,
+    category: product.category,
+    url: absoluteUrl(`/store/${product.slug}`),
+    image: product.imageSrc ? absoluteUrl(product.imageSrc) : undefined,
+    brand: { "@type": "Brand", name: SITE_NAME },
+    ...(product.priceCents
       ? {
-          images: [
-            {
-              url: product.imageSrc,
-              width: 1254,
-              height: 1254,
-              alt: `${product.name} ${product.strength}`,
-            },
-          ],
+          offers: {
+            "@type": "Offer",
+            url: absoluteUrl(`/store/${product.slug}`),
+            priceCurrency: "USD",
+            price: (product.priceCents / 100).toFixed(2),
+            availability: "https://schema.org/InStock",
+            itemCondition: "https://schema.org/NewCondition",
+            seller: { "@id": `${SITE_URL}/#organization` },
+          },
         }
-      : undefined,
+      : {}),
+  };
+}
+
+function breadcrumbJsonLd(product: Product) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+      { "@type": "ListItem", position: 2, name: "Store", item: absoluteUrl("/store") },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: `${product.name} ${product.strength}`,
+        item: absoluteUrl(`/store/${product.slug}`),
+      },
+    ],
   };
 }
 
@@ -50,6 +96,12 @@ export default async function ProductPage({ params }: Params) {
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify([productJsonLd(product), breadcrumbJsonLd(product)]),
+        }}
+      />
       <article className="pdp" data-category={product.category}>
         <div
           className={`pdp-visual ${product.imageSrc ? "has-product-image" : ""}`}

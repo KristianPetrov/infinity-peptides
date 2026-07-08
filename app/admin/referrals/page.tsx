@@ -13,8 +13,6 @@ export const metadata: Metadata = {
   title: "Admin Referral Codes",
 };
 
-export const dynamic = "force-dynamic";
-
 export default async function AdminReferralsPage() {
   await requireAdmin();
   const [codes, partners] = await Promise.all([

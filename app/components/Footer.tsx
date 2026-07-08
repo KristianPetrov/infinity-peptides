@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { CopyrightYear } from "./CopyrightYear";
 
 const FOOTER_LINKS: { heading: string; links: { href: string; label: string }[] }[] = [
   {
@@ -39,6 +40,7 @@ export function Footer() {
             alt="Infinity Peptides"
             width={1536}
             height={1024}
+            sizes="170px"
           />
           <p>
             A premium Research Use Only peptide catalog built for qualified
@@ -67,7 +69,9 @@ export function Footer() {
       </div>
 
       <div className="footer-base">
-        <span>© {new Date().getFullYear()} Infinity Peptides</span>
+        <span>
+          © <CopyrightYear /> Infinity Peptides
+        </span>
         <span>infinity-peptides.com</span>
       </div>
     </footer>

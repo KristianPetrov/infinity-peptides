@@ -4,9 +4,8 @@ import { registerAction } from "../auth-actions";
 
 export const metadata: Metadata = {
   title: "Create Account",
+  robots: { index: false, follow: false },
 };
-
-export const dynamic = "force-dynamic";
 
 type Props = {
   searchParams: Promise<{ error?: string }>;

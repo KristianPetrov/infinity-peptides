@@ -5,9 +5,8 @@ import { loginAction } from "../auth-actions";
 
 export const metadata: Metadata = {
   title: "Login",
+  robots: { index: false, follow: false },
 };
-
-export const dynamic = "force-dynamic";
 
 type Props = {
   searchParams: Promise<{ error?: string; redirectTo?: string }>;

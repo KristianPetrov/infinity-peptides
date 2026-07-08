@@ -8,8 +8,6 @@ export const metadata: Metadata = {
   title: "Admin Analytics",
 };
 
-export const dynamic = "force-dynamic";
-
 export default async function AdminAnalyticsPage() {
   await requireAdmin();
   const [orders, products] = await Promise.all([listOrders(500), listInventory()]);

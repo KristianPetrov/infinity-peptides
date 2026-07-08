@@ -8,9 +8,10 @@ import { ProductCard } from "../components/ProductCard";
 import { Reveal } from "../components/Reveal";
 
 export const metadata: Metadata = {
-  title: "Store",
+  title: "Research Peptide Store — Full RUO Catalog",
   description:
     "The full Infinity Peptides Research Use Only catalog, grouped by research category with clear USD pricing.",
+  alternates: { canonical: "/store" },
 };
 
 function slug(category: string) {

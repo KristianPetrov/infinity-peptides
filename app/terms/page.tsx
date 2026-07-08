@@ -4,6 +4,7 @@ import { Reveal } from "../components/Reveal";
 export const metadata: Metadata = {
   title: "Terms of Sale",
   description: "Terms of sale for Infinity Peptides research compounds.",
+  alternates: { canonical: "/terms" },
 };
 
 export default function TermsPage() {

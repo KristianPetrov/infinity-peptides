@@ -14,6 +14,25 @@ import {
 const ruoFooter =
   "For Research Use Only. Not for human or veterinary use. Products are intended strictly for in-vitro laboratory research and development.";
 
+// Site palette (mirrors app/globals.css design tokens).
+const COLORS = {
+  background: "#04060c",
+  card: "#070b15",
+  panel: "rgba(255, 255, 255, 0.05)",
+  line: "rgba(255, 255, 255, 0.14)",
+  foreground: "#f4f7fc",
+  body: "#c8d2e4",
+  muted: "#aab4c4",
+  faint: "#6b7689",
+  magenta: "#f450b9",
+  violet: "#8b65ff",
+  cyan: "#4ee7f2",
+  gradient: "linear-gradient(100deg, #f450b9, #8b65ff 42%, #4ee7f2)",
+} as const;
+
+const FONT_STACK =
+  "'Sora', -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
+
 type SendArgs = {
   to: string;
   subject: string;
@@ -50,26 +69,27 @@ async function sendEmail({ to, subject, html, idempotencyKey }: SendArgs) {
   }
 }
 
+export function renderOrderConfirmationEmail(order: OrderWithItems) {
+  return layout(
+    "Order received",
+    `
+      <p>Thank you — your Infinity Peptides order has been recorded as <strong>pending payment</strong>.</p>
+      ${orderSummary(order)}
+      ${paymentPanel(order)}
+      ${ctaButton(
+        `${siteUrl()}/order/${order.reference}?email=${encodeURIComponent(order.email)}`,
+        "View order details",
+      )}
+    `,
+  );
+}
+
 export async function sendOrderConfirmation(order: OrderWithItems) {
   await sendEmail({
     to: order.email,
     subject: `Order ${order.reference} received - payment pending`,
     idempotencyKey: `order-confirmation/${order.reference}`,
-    html: layout(
-      "Order received",
-      `
-        <p>Your Infinity Peptides order has been recorded as <strong>pending payment</strong>.</p>
-        ${orderSummary(order)}
-        <div class="panel">
-          <h2>Manual payment</h2>
-          <p><strong>Zelle:</strong> ${escapeHtml(zelleRecipient())}</p>
-          <p><strong>Venmo:</strong> ${escapeHtml(venmoHandle())}</p>
-          <p>Send <strong>${formatPrice(order.totalCents)}</strong> and include <strong>${order.reference}</strong> in the payment note.</p>
-          <p><a href="${venmoLink(order.totalCents, order.reference)}">Open Venmo with amount prefilled</a></p>
-        </div>
-        <p><a href="${siteUrl()}/order/${order.reference}?email=${encodeURIComponent(order.email)}">View order details</a></p>
-      `,
-    ),
+    html: renderOrderConfirmationEmail(order),
   });
 }
 
@@ -111,14 +131,11 @@ export async function sendPendingPaymentReceipt(order: OrderWithItems, options: 
       `
         <p>Order <strong>${order.reference}</strong> is marked as <strong>pending payment</strong>.</p>
         ${orderSummary(order)}
-        <div class="panel">
-          <h2>Manual payment</h2>
-          <p><strong>Zelle:</strong> ${escapeHtml(zelleRecipient())}</p>
-          <p><strong>Venmo:</strong> ${escapeHtml(venmoHandle())}</p>
-          <p>Send <strong>${formatPrice(order.totalCents)}</strong> and include <strong>${order.reference}</strong> in the payment note.</p>
-          <p><a href="${venmoLink(order.totalCents, order.reference)}">Open Venmo with amount prefilled</a></p>
-        </div>
-        <p><a href="${siteUrl()}/order/${order.reference}?email=${encodeURIComponent(order.email)}">View order details</a></p>
+        ${paymentPanel(order)}
+        ${ctaButton(
+          `${siteUrl()}/order/${order.reference}?email=${encodeURIComponent(order.email)}`,
+          "View order details",
+        )}
       `,
     ),
   });
@@ -220,34 +237,112 @@ export async function sendAdminOrderStatusUpdate(
   });
 }
 
+// Manual payment panel showing BOTH Zelle and Venmo with step-by-step
+// instructions. Used on every payment-pending email.
+function paymentPanel(order: OrderWithItems) {
+  const total = formatPrice(order.totalCents);
+  const ref = order.reference;
+
+  return `
+    <div class="panel" style="border:1px solid ${COLORS.line};border-radius:14px;padding:20px 22px;background:${COLORS.panel};margin:18px 0;">
+      <h2 style="margin:0 0 6px;font-size:14px;color:${COLORS.cyan};text-transform:uppercase;letter-spacing:.14em;">How to pay</h2>
+      <p style="margin:0 0 14px;color:${COLORS.body};line-height:1.6;">
+        Send <strong style="color:${COLORS.foreground};">${total}</strong> using
+        <strong style="color:${COLORS.foreground};">either</strong> option below — whichever is easier for you.
+      </p>
+
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:separate;border-spacing:0 10px;margin:0;">
+        <tr>
+          <td style="border:1px solid ${COLORS.line};border-radius:12px;padding:14px 16px;background:rgba(255,255,255,0.03);">
+            <p style="margin:0 0 2px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:${COLORS.muted};">Option 1 · Zelle</p>
+            <p style="margin:0;font-size:17px;font-weight:700;color:${COLORS.foreground};">${escapeHtml(zelleRecipient())}</p>
+            <p style="margin:6px 0 0;color:${COLORS.body};font-size:14px;line-height:1.6;">
+              In your banking app, send ${total} to the address above and put
+              <strong style="color:${COLORS.foreground};">${ref}</strong> in the memo.
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td style="border:1px solid ${COLORS.line};border-radius:12px;padding:14px 16px;background:rgba(255,255,255,0.03);">
+            <p style="margin:0 0 2px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:${COLORS.muted};">Option 2 · Venmo</p>
+            <p style="margin:0;font-size:17px;font-weight:700;color:${COLORS.foreground};">${escapeHtml(venmoHandle())}</p>
+            <p style="margin:6px 0 0;color:${COLORS.body};font-size:14px;line-height:1.6;">
+              Send ${total} to the handle above with
+              <strong style="color:${COLORS.foreground};">${ref}</strong> in the payment note, or
+              <a href="${venmoLink(order.totalCents, order.reference)}" style="color:${COLORS.cyan};">open Venmo with the amount prefilled</a>.
+            </p>
+          </td>
+        </tr>
+      </table>
+
+      <p style="margin:14px 0 0;color:${COLORS.body};font-size:14px;line-height:1.7;">
+        <strong style="color:${COLORS.foreground};">Payment steps</strong><br/>
+        1. Pick Zelle or Venmo — only one payment is needed.<br/>
+        2. Send the exact total of <strong style="color:${COLORS.foreground};">${total}</strong>.<br/>
+        3. Include your order reference <strong style="color:${COLORS.foreground};">${ref}</strong> in the memo / note so we can match your payment.<br/>
+        4. Once your payment is verified you'll receive a receipt email, and a tracking number when your order ships.
+      </p>
+    </div>
+  `;
+}
+
+function ctaButton(href: string, label: string) {
+  return `
+    <table role="presentation" cellpadding="0" cellspacing="0" style="margin:22px auto 6px;width:auto;">
+      <tr>
+        <td style="border-radius:999px;background:${COLORS.gradient};background-color:${COLORS.violet};">
+          <a href="${href}" style="display:inline-block;padding:12px 28px;font-weight:700;font-size:15px;color:#04060c;text-decoration:none;border-radius:999px;">
+            ${escapeHtml(label)}
+          </a>
+        </td>
+      </tr>
+    </table>
+  `;
+}
+
 function layout(title: string, body: string) {
   return `
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="supported-color-schemes" content="dark" />
     <title>${escapeHtml(title)} | Infinity Peptides</title>
     <style>
-      body { margin: 0; background: #05070d; color: #f4f7fc; font-family: Arial, sans-serif; }
-      .wrap { max-width: 680px; margin: 0 auto; padding: 32px 20px; }
-      .card { border: 1px solid rgba(255,255,255,.14); border-radius: 18px; background: #0b1322; padding: 28px; }
-      h1 { margin: 0 0 18px; font-size: 30px; line-height: 1.1; }
-      h2 { margin: 0 0 12px; font-size: 17px; color: #e8c879; text-transform: uppercase; letter-spacing: .08em; }
-      p { color: #c8d2e4; line-height: 1.6; }
-      a { color: #4ee7f2; }
-      table { width: 100%; border-collapse: collapse; margin: 18px 0; }
-      th, td { padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,.1); text-align: left; color: #dce5f4; }
-      th:last-child, td:last-child { text-align: right; }
-      .panel { border: 1px solid rgba(255,255,255,.12); border-radius: 14px; padding: 16px 18px; background: rgba(255,255,255,.04); margin: 18px 0; }
-      .footer { margin-top: 22px; color: #aeb7c7; font-size: 13px; }
+      body { margin: 0; background: ${COLORS.background}; color: ${COLORS.foreground}; font-family: ${FONT_STACK}; }
+      .wrap { max-width: 640px; margin: 0 auto; padding: 32px 20px; }
+      .card { border: 1px solid ${COLORS.line}; border-radius: 18px; background: ${COLORS.card}; padding: 30px 28px; }
+      h1 { margin: 0 0 18px; font-size: 28px; line-height: 1.15; color: ${COLORS.foreground}; }
+      h2 { margin: 0 0 12px; font-size: 14px; color: ${COLORS.cyan}; text-transform: uppercase; letter-spacing: .14em; }
+      p { color: ${COLORS.body}; line-height: 1.6; }
+      a { color: ${COLORS.cyan}; }
+      table { width: 100%; }
+      .items th, .items td { padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,.1); text-align: left; color: #dce5f4; border-collapse: collapse; }
+      .items th:last-child, .items td:last-child { text-align: right; }
+      .panel { border: 1px solid ${COLORS.line}; border-radius: 14px; padding: 16px 18px; background: ${COLORS.panel}; margin: 18px 0; }
+      .footer { margin-top: 22px; color: ${COLORS.faint}; font-size: 12px; line-height: 1.6; }
     </style>
   </head>
-  <body>
-    <div class="wrap">
-      <div class="card">
-        <h1>Infinity Peptides</h1>
-        ${body}
-        <p class="footer">${ruoFooter}</p>
+  <body style="margin:0;background:${COLORS.background};color:${COLORS.foreground};font-family:${FONT_STACK};">
+    <div class="wrap" style="max-width:640px;margin:0 auto;padding:32px 20px;">
+      <p style="margin:0 0 14px;text-align:center;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:${COLORS.faint};">
+        For Research Use Only · Not for human or veterinary use
+      </p>
+      <div class="card" style="border:1px solid ${COLORS.line};border-radius:18px;background:${COLORS.card};padding:0;overflow:hidden;">
+        <div style="height:4px;background:${COLORS.gradient};background-color:${COLORS.violet};"></div>
+        <div style="padding:30px 28px;">
+          <div style="text-align:center;margin-bottom:22px;">
+            <img src="${siteUrl()}/infinity-peptides-logo.png" width="150" alt="Infinity Peptides" style="display:block;margin:0 auto 4px;max-width:150px;height:auto;" />
+            <p style="margin:0;font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:${COLORS.muted};">Research Peptide Catalog</p>
+          </div>
+          <h1 style="margin:0 0 18px;font-size:28px;line-height:1.15;color:${COLORS.foreground};text-align:center;">${escapeHtml(title)}</h1>
+          ${body}
+          <p class="footer" style="margin-top:24px;padding-top:16px;border-top:1px solid rgba(255,255,255,.08);color:${COLORS.faint};font-size:12px;line-height:1.6;">
+            ${ruoFooter}<br/>
+            <a href="${siteUrl()}" style="color:${COLORS.muted};">infinity-peptides.com</a>
+          </p>
+        </div>
       </div>
     </div>
   </body>
@@ -255,26 +350,29 @@ function layout(title: string, body: string) {
 }
 
 function orderSummary(order: OrderWithItems) {
+  const cell = `padding:10px 0;border-bottom:1px solid rgba(255,255,255,.1);text-align:left;color:#dce5f4;`;
+  const cellRight = `${cell}text-align:right;`;
+
   const rows = order.items
     .map(
       (item) => `
         <tr>
-          <td>${escapeHtml(item.name)} <small>${escapeHtml(item.slug)}</small><br/><small>Qty ${item.quantity}</small></td>
-          <td>${formatPrice(item.unitPriceCents * item.quantity)}</td>
+          <td style="${cell}">${escapeHtml(item.name)}<br/><small style="color:${COLORS.muted};">${escapeHtml(item.slug)} · Qty ${item.quantity}</small></td>
+          <td style="${cellRight}">${formatPrice(item.unitPriceCents * item.quantity)}</td>
         </tr>
       `,
     )
     .join("");
 
   return `
-    <div class="panel">
-      <h2>Order ${order.reference}</h2>
-      <table>
+    <div class="panel" style="border:1px solid ${COLORS.line};border-radius:14px;padding:16px 18px;background:${COLORS.panel};margin:18px 0;">
+      <h2 style="margin:0 0 12px;font-size:14px;color:${COLORS.cyan};text-transform:uppercase;letter-spacing:.14em;">Order ${order.reference}</h2>
+      <table class="items" role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:0;">
         <tbody>${rows}</tbody>
         <tfoot>
-          <tr><th>Subtotal</th><td>${formatPrice(order.subtotalCents)}</td></tr>
-          <tr><th>Shipping</th><td>${formatPrice(order.shippingCents)}</td></tr>
-          <tr><th>Total</th><td><strong>${formatPrice(order.totalCents)}</strong></td></tr>
+          <tr><th style="${cell}">Subtotal</th><td style="${cellRight}">${formatPrice(order.subtotalCents)}</td></tr>
+          <tr><th style="${cell}">Shipping</th><td style="${cellRight}">${formatPrice(order.shippingCents)}</td></tr>
+          <tr><th style="${cell}border-bottom:none;color:${COLORS.foreground};">Total</th><td style="${cellRight}border-bottom:none;"><strong style="color:${COLORS.foreground};">${formatPrice(order.totalCents)}</strong></td></tr>
         </tfoot>
       </table>
     </div>

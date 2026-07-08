@@ -112,7 +112,7 @@ export default function CheckoutPage() {
     const summaryLines = [
       `Order reference: ${order.reference}`,
       `Total due: ${formatPrice(order.totalCents)}`,
-      `Preferred payment: ${order.paymentMethod === "zelle" ? "Zelle" : "Venmo"}`,
+      `Payment options: Zelle (${ZELLE_RECIPIENT}) or Venmo (${VENMO_HANDLE})`,
     ].join("%0D%0A");
     const mailto = `mailto:orders@infinity-peptides.com?subject=${encodeURIComponent(
       `Order ${order.reference}`,
@@ -124,34 +124,62 @@ export default function CheckoutPage() {
         <p className="eyebrow">Order received · payment pending</p>
         <h1>Thank you for your order</h1>
         <p className="lead" style={{ maxWidth: 560, margin: "0 auto" }}>
-          Your order has been recorded. Send manual payment using one of the
-          options below and include your order reference in the payment note.
+          A confirmation email with these payment instructions was sent to{" "}
+          <strong style={{ color: "var(--foreground, #f4f7fc)" }}>
+            {order.email}
+          </strong>
+          . Pay with <strong>either</strong> Zelle or Venmo below — only one
+          payment is needed.
         </p>
         <span className="ref">{order.reference}</span>
 
         <div className="pay-grid">
           <div className="pay-card">
-            <h4>Zelle</h4>
+            <h4>Option 1 · Zelle</h4>
             <p>{ZELLE_RECIPIENT}</p>
             <small>
-              Send {formatPrice(order.totalCents)} and include{" "}
-              <strong>{order.reference}</strong> in the memo.
+              In your banking app, send {formatPrice(order.totalCents)} to this
+              address and put <strong>{order.reference}</strong> in the memo.
             </small>
           </div>
           <div className="pay-card">
-            <h4>Venmo</h4>
+            <h4>Option 2 · Venmo</h4>
             <p>{VENMO_HANDLE}</p>
             <small>
+              Send {formatPrice(order.totalCents)} with{" "}
+              <strong>{order.reference}</strong> in the note, or{" "}
               <a
                 href={venmoLink(VENMO_HANDLE, order.totalCents, order.reference)}
                 target="_blank"
                 rel="noreferrer"
                 style={{ color: "var(--cyan)", textDecoration: "underline" }}
               >
-                Open Venmo with amount prefilled →
+                open Venmo with the amount prefilled →
               </a>
             </small>
           </div>
+        </div>
+
+        <div
+          className="field-card"
+          style={{ maxWidth: 560, margin: "0 auto 26px", textAlign: "left" }}
+        >
+          <h3>Payment steps</h3>
+          <ol style={{ margin: 0, paddingLeft: 20, lineHeight: 1.9, color: "var(--muted)" }}>
+            <li>Pick Zelle or Venmo — whichever is easier for you.</li>
+            <li>
+              Send the exact total of{" "}
+              <strong>{formatPrice(order.totalCents)}</strong>.
+            </li>
+            <li>
+              Include your order reference <strong>{order.reference}</strong>{" "}
+              in the memo / note so we can match your payment.
+            </li>
+            <li>
+              Once payment is verified you&apos;ll receive a receipt email, and
+              a tracking number when your order ships.
+            </li>
+          </ol>
         </div>
 
         <div className="hero-actions" style={{ justifyContent: "center" }}>

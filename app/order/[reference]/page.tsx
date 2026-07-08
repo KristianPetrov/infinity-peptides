@@ -12,19 +12,15 @@ import {
 } from "@/lib/orders/config";
 import { getCurrentUser } from "@/lib/auth/session";
 
-export const dynamic = "force-dynamic";
-
 type Props = {
   params: Promise<{ reference: string }>;
   searchParams: Promise<{ email?: string }>;
 };
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { reference } = await params;
-  return {
-    title: `Order ${reference.toUpperCase()}`,
-  };
-}
+export const metadata: Metadata = {
+  title: "Order Details",
+  robots: { index: false, follow: false },
+};
 
 export default async function OrderPage({ params, searchParams }: Props) {
   const { reference } = await params;
@@ -54,7 +50,7 @@ export default async function OrderPage({ params, searchParams }: Props) {
         <div className="pay-card">
           <h4>Total</h4>
           <p>{formatPrice(order.totalCents)}</p>
-          <small>Preferred payment: {order.paymentMethod}</small>
+          <small>Pay with Zelle or Venmo — only one payment is needed</small>
         </div>
         <div className="pay-card">
           <h4>Placed by</h4>
@@ -66,23 +62,46 @@ export default async function OrderPage({ params, searchParams }: Props) {
       {order.status === "pending_payment" ? (
         <div className="field-card" style={{ margin: "24px 0" }}>
           <h3>Manual payment instructions</h3>
-          <p className="hint">Include your order reference in the payment note.</p>
-          <div className="pay-grid" style={{ marginBottom: 0 }}>
+          <p className="hint">
+            A confirmation email with these instructions was sent to{" "}
+            <strong>{order.email}</strong>. Pay with either option below.
+          </p>
+          <div className="pay-grid" style={{ marginBottom: 16 }}>
             <div className="pay-card">
-              <h4>Zelle</h4>
+              <h4>Option 1 · Zelle</h4>
               <p>{zelleRecipient()}</p>
-              <small>Send {formatPrice(order.totalCents)} with memo {order.reference}.</small>
+              <small>
+                In your banking app, send {formatPrice(order.totalCents)} to
+                this address with <strong>{order.reference}</strong> in the memo.
+              </small>
             </div>
             <div className="pay-card">
-              <h4>Venmo</h4>
+              <h4>Option 2 · Venmo</h4>
               <p>{venmoHandle()}</p>
               <small>
+                Send {formatPrice(order.totalCents)} with{" "}
+                <strong>{order.reference}</strong> in the note, or{" "}
                 <a href={venmoLink(order.totalCents, order.reference)} target="_blank" rel="noreferrer">
-                  Open Venmo with amount prefilled
+                  open Venmo with the amount prefilled
                 </a>
+                .
               </small>
             </div>
           </div>
+          <ol style={{ margin: 0, paddingLeft: 20, lineHeight: 1.9, color: "var(--muted)" }}>
+            <li>Pick Zelle or Venmo — whichever is easier for you.</li>
+            <li>
+              Send the exact total of <strong>{formatPrice(order.totalCents)}</strong>.
+            </li>
+            <li>
+              Include your order reference <strong>{order.reference}</strong> in
+              the memo / note so we can match your payment.
+            </li>
+            <li>
+              Once payment is verified you&apos;ll receive a receipt email, and a
+              tracking number when your order ships.
+            </li>
+          </ol>
         </div>
       ) : null}
 
