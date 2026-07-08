@@ -718,14 +718,69 @@ export function getProductBySlug(slug: string): Product | undefined {
   return products.find((p) => p.slug === slug);
 }
 
-export function getFeaturedProducts(): Product[] {
-  return products.filter((p) => p.featured);
+// A group bundles every strength of the same compound into one storefront
+// card. Variants keep their own slugs, prices, COAs, and detail pages.
+export type ProductGroup = {
+  name: string;
+  category: Category;
+  tag: string;
+  featured: boolean;
+  variants: Product[]; // sorted lowest strength first
+};
+
+function strengthValue(product: Product): number {
+  const n = parseFloat(product.strength);
+  return Number.isNaN(n) ? Number.POSITIVE_INFINITY : n;
 }
 
-export function getProductsByCategory(): { category: Category; items: Product[] }[] {
+export function groupProducts(list: Product[]): ProductGroup[] {
+  const byName = new Map<string, Product[]>();
+  for (const product of list) {
+    const existing = byName.get(product.name);
+    if (existing) existing.push(product);
+    else byName.set(product.name, [product]);
+  }
+  return [...byName.values()].map((variants) => {
+    const sorted = [...variants].sort(
+      (a, b) => strengthValue(a) - strengthValue(b),
+    );
+    const lead = sorted.find((v) => v.priceCents != null) ?? sorted[0];
+    return {
+      name: lead.name,
+      category: lead.category,
+      tag: lead.tag,
+      featured: sorted.some((v) => v.featured),
+      variants: sorted,
+    };
+  });
+}
+
+export function getProductVariants(product: Product): Product[] {
+  return products
+    .filter((p) => p.name === product.name && p.category === product.category)
+    .sort((a, b) => strengthValue(a) - strengthValue(b));
+}
+
+export function getFeaturedProductGroups(): {
+  group: ProductGroup;
+  defaultSlug: string;
+}[] {
+  return groupProducts(products)
+    .filter((group) => group.featured)
+    .map((group) => ({
+      group,
+      defaultSlug: (group.variants.find((v) => v.featured) ?? group.variants[0])
+        .slug,
+    }));
+}
+
+export function getProductGroupsByCategory(): {
+  category: Category;
+  items: ProductGroup[];
+}[] {
   return CATEGORY_ORDER.map((category) => ({
     category,
-    items: products.filter((p) => p.category === category),
+    items: groupProducts(products.filter((p) => p.category === category)),
   })).filter((group) => group.items.length > 0);
 }
 

@@ -4,7 +4,7 @@ import Link from "next/link";
 import {
   catalogStats,
   formatPrice,
-  getFeaturedProducts,
+  getFeaturedProductGroups,
   products,
 } from "@/lib/products";
 import { ProductCard } from "./components/ProductCard";
@@ -33,8 +33,12 @@ const VALUE_PROPS = [
 ];
 
 export default function Home() {
-  const featured = getFeaturedProducts();
-  const ticker = [...featured, ...featured];
+  const featured = getFeaturedProductGroups();
+  const tickerItems = featured.map(
+    ({ group, defaultSlug }) =>
+      group.variants.find((v) => v.slug === defaultSlug) ?? group.variants[0],
+  );
+  const ticker = [...tickerItems, ...tickerItems];
   const spotlight = [
     products.find((p) => p.slug === "nad-1000mg"),
     products.find((p) => p.slug === "retatrutide-30mg"),
@@ -247,9 +251,9 @@ export default function Home() {
           </Reveal>
         </div>
         <div className="product-grid">
-          {featured.map((p, i) => (
-            <Reveal key={p.slug} delay={(i % 4) * 70}>
-              <ProductCard product={p} />
+          {featured.map(({ group, defaultSlug }, i) => (
+            <Reveal key={group.name} delay={(i % 4) * 70}>
+              <ProductCard group={group} defaultSlug={defaultSlug} />
             </Reveal>
           ))}
         </div>

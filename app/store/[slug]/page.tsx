@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import {
   formatPrice,
   getProductBySlug,
+  getProductVariants,
+  groupProducts,
   products,
   type Product,
 } from "@/lib/products";
@@ -90,9 +92,12 @@ export default async function ProductPage({ params }: Params) {
   const product = getProductBySlug(slug);
   if (!product) notFound();
 
-  const related = products
-    .filter((p) => p.category === product.category && p.slug !== product.slug)
-    .slice(0, 4);
+  const variants = getProductVariants(product);
+  const related = groupProducts(
+    products.filter(
+      (p) => p.category === product.category && p.name !== product.name,
+    ),
+  ).slice(0, 4);
 
   return (
     <>
@@ -133,6 +138,33 @@ export default async function ProductPage({ params }: Params) {
           </div>
 
           <p className="pdp-desc">{product.description}</p>
+
+          {variants.length > 1 ? (
+            <div className="pdp-strengths">
+              <span>Available strengths</span>
+              <div className="strength-options">
+                {variants.map((variant) =>
+                  variant.slug === product.slug ? (
+                    <span
+                      key={variant.slug}
+                      className="strength-option is-active"
+                      aria-current="page"
+                    >
+                      {variant.strength}
+                    </span>
+                  ) : (
+                    <Link
+                      key={variant.slug}
+                      className="strength-option"
+                      href={`/store/${variant.slug}`}
+                    >
+                      {variant.strength}
+                    </Link>
+                  ),
+                )}
+              </div>
+            </div>
+          ) : null}
 
           <ProductBuyPanel product={product} />
 
@@ -208,9 +240,9 @@ export default async function ProductPage({ params }: Params) {
         <section className="related">
           <h3>More in {product.category}</h3>
           <div className="product-grid">
-            {related.map((p, i) => (
-              <Reveal key={p.slug} delay={(i % 4) * 60}>
-                <ProductCard product={p} />
+            {related.map((group, i) => (
+              <Reveal key={group.name} delay={(i % 4) * 60}>
+                <ProductCard group={group} />
               </Reveal>
             ))}
           </div>

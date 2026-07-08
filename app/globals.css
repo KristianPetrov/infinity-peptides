@@ -1114,6 +1114,58 @@ img {
   font-size: 0.9rem;
 }
 
+/* strength variant selector (product cards + product detail) */
+.strength-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.strength-option {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  padding: 4px 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition: border-color 140ms ease, background 140ms ease,
+    color 140ms ease, transform 140ms ease;
+}
+
+.strength-option:hover {
+  transform: translateY(-1px);
+  border-color: var(--accent, rgba(78, 231, 242, 0.5));
+  color: #fff;
+}
+
+.strength-option.is-active {
+  border-color: var(--accent, rgba(78, 231, 242, 0.5));
+  background: var(--accent-soft, rgba(78, 231, 242, 0.2));
+  color: #fff;
+}
+
+.pdp-strengths {
+  margin-bottom: 22px;
+}
+
+.pdp-strengths > span {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
 .product-footer {
   display: flex;
   align-items: center;

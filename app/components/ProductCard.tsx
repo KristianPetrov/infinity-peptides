@@ -1,38 +1,77 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
-import type { Product } from "@/lib/products";
+import type { ProductGroup } from "@/lib/products";
 import { formatPrice } from "@/lib/products";
 import { AddToCartButton } from "./AddToCartButton";
 import { ProductImage } from "./ProductImage";
 
-export function ProductCard({ product }: { product: Product }) {
+export function ProductCard({
+  group,
+  defaultSlug,
+}: {
+  group: ProductGroup;
+  defaultSlug?: string;
+}) {
+  const initial =
+    group.variants.find((v) => v.slug === defaultSlug) ??
+    group.variants.find((v) => v.priceCents != null) ??
+    group.variants[0];
+  const [selected, setSelected] = useState(initial);
+  const hasOptions = group.variants.length > 1;
+
   return (
-    <article className="product-card" data-category={product.category}>
+    <article className="product-card" data-category={group.category}>
       <Link
-        className={`product-visual ${product.imageSrc ? "has-product-image" : ""}`}
-        href={`/store/${product.slug}`}
-        aria-label={`View ${product.name} ${product.strength}`}
+        className={`product-visual ${selected.imageSrc ? "has-product-image" : ""}`}
+        href={`/store/${selected.slug}`}
+        aria-label={`View ${selected.name} ${selected.strength}`}
       >
         <ProductImage
-          imageSrc={product.imageSrc}
-          name={product.name}
-          strength={product.strength}
+          key={selected.slug}
+          imageSrc={selected.imageSrc}
+          name={selected.name}
+          strength={selected.strength}
         />
-        {product.featured ? <span className="featured-pip">Featured</span> : null}
+        {group.featured ? <span className="featured-pip">Featured</span> : null}
       </Link>
       <div className="product-copy">
-        <p>{product.tag}</p>
+        <p>{group.tag}</p>
         <h4>
-          <Link href={`/store/${product.slug}`}>{product.name}</Link>
+          <Link href={`/store/${selected.slug}`}>{group.name}</Link>
         </h4>
-        <span className="product-strength">{product.strength}</span>
+        {hasOptions ? (
+          <div
+            className="strength-options"
+            role="group"
+            aria-label={`${group.name} strength`}
+          >
+            {group.variants.map((variant) => (
+              <button
+                key={variant.slug}
+                type="button"
+                className={`strength-option${
+                  variant.slug === selected.slug ? " is-active" : ""
+                }`}
+                aria-pressed={variant.slug === selected.slug}
+                onClick={() => setSelected(variant)}
+              >
+                {variant.strength}
+              </button>
+            ))}
+          </div>
+        ) : (
+          <span className="product-strength">{selected.strength}</span>
+        )}
       </div>
       <div className="product-footer">
-        <strong>{formatPrice(product.priceCents)}</strong>
+        <strong>{formatPrice(selected.priceCents)}</strong>
         <div className="product-actions">
-          <Link className="card-cta" href={`/store/${product.slug}`}>
+          <Link className="card-cta" href={`/store/${selected.slug}`}>
             Details
           </Link>
-          <AddToCartButton product={product} />
+          <AddToCartButton key={selected.slug} product={selected} />
         </div>
       </div>
     </article>

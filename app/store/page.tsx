@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import {
   CATEGORY_BLURB,
   catalogStats,
-  getProductsByCategory,
+  getProductGroupsByCategory,
 } from "@/lib/products";
 import { ProductCard } from "../components/ProductCard";
 import { Reveal } from "../components/Reveal";
@@ -19,7 +19,7 @@ function slug(category: string) {
 }
 
 export default function StorePage() {
-  const groups = getProductsByCategory();
+  const groups = getProductGroupsByCategory();
 
   return (
     <>
@@ -67,9 +67,9 @@ export default function StorePage() {
                 <span>{items.length} products</span>
               </div>
               <div className="product-grid">
-                {items.map((p, i) => (
-                  <Reveal key={p.slug} delay={(i % 4) * 60}>
-                    <ProductCard product={p} />
+                {items.map((group, i) => (
+                  <Reveal key={group.name} delay={(i % 4) * 60}>
+                    <ProductCard group={group} />
                   </Reveal>
                 ))}
               </div>
