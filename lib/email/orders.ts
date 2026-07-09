@@ -108,9 +108,8 @@ export async function sendAdminNewOrder(order: OrderWithItems) {
       "New order",
       `
         <p>A new order is ready for manual payment verification.</p>
+        ${adminCustomerPanel(order)}
         <div class="panel">
-          <p><strong>Reference:</strong> ${order.reference}</p>
-          <p><strong>Customer:</strong> ${escapeHtml(order.email)}</p>
           <p><strong>Total:</strong> ${formatPrice(order.totalCents)}</p>
           <p><strong>Preferred payment:</strong> ${order.paymentMethod}</p>
         </div>
@@ -215,9 +214,8 @@ export async function sendAdminOrderStatusUpdate(
       "Order status updated",
       `
         <p>Order <strong>${order.reference}</strong> changed from <strong>${escapeHtml(previousLabel)}</strong> to <strong>${escapeHtml(currentLabel)}</strong>.</p>
+        ${adminCustomerPanel(order)}
         <div class="panel">
-          <p><strong>Reference:</strong> ${order.reference}</p>
-          <p><strong>Customer:</strong> ${escapeHtml(order.email)}</p>
           <p><strong>Total:</strong> ${formatPrice(order.totalCents)}</p>
           <p><strong>Status:</strong> ${escapeHtml(currentLabel)}</p>
           ${
@@ -235,6 +233,31 @@ export async function sendAdminOrderStatusUpdate(
       `,
     ),
   });
+}
+
+function adminCustomerPanel(order: OrderWithItems) {
+  const address = order.shippingAddress;
+  const phone = address.phone?.trim();
+  const lines = [
+    address.address1,
+    address.address2,
+    [address.city, address.state, address.postalCode].filter(Boolean).join(", "),
+    address.country,
+  ].filter((line): line is string => Boolean(line?.trim()));
+
+  return `
+    <div class="panel" style="border:1px solid ${COLORS.line};border-radius:14px;padding:16px 18px;background:${COLORS.panel};margin:18px 0;">
+      <h2 style="margin:0 0 12px;font-size:14px;color:${COLORS.cyan};text-transform:uppercase;letter-spacing:.14em;">Customer &amp; shipping</h2>
+      <p style="margin:0 0 8px;color:${COLORS.body};"><strong style="color:${COLORS.foreground};">Reference:</strong> ${escapeHtml(order.reference)}</p>
+      <p style="margin:0 0 8px;color:${COLORS.body};"><strong style="color:${COLORS.foreground};">Name:</strong> ${escapeHtml(address.fullName || "—")}</p>
+      <p style="margin:0 0 8px;color:${COLORS.body};"><strong style="color:${COLORS.foreground};">Email:</strong> ${escapeHtml(order.email)}</p>
+      <p style="margin:0 0 8px;color:${COLORS.body};"><strong style="color:${COLORS.foreground};">Phone:</strong> ${escapeHtml(phone || "Not provided")}</p>
+      <p style="margin:0;color:${COLORS.body};line-height:1.6;">
+        <strong style="color:${COLORS.foreground};">Ship to:</strong><br/>
+        ${lines.map((line) => escapeHtml(line)).join("<br/>")}
+      </p>
+    </div>
+  `;
 }
 
 // Manual payment panel showing BOTH Zelle and Venmo with step-by-step
