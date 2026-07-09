@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { formatPrice } from "@/lib/products";
 import { getOrderByReference } from "@/lib/orders/service";
+import { orderItemLabel } from "@/lib/orders/format";
 import {
   orderStatusLabel,
   trackingUrl,
@@ -124,7 +125,7 @@ export default async function OrderPage({ params, searchParams }: Props) {
         {order.items.map((item) => (
           <div className="summary-line" key={item.id}>
             <span className="name">
-              {item.name}
+              {orderItemLabel(item)}
               <small>
                 {item.slug} x {item.quantity}
               </small>

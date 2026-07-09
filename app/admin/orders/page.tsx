@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { formatPrice } from "@/lib/products";
 import { requireAdmin } from "@/lib/admin/auth";
 import { listOrders } from "@/lib/orders/service";
+import { orderItemQuantityLabel } from "@/lib/orders/format";
 import { orderStatusLabel, trackingUrl } from "@/lib/orders/config";
 import { AdminShell } from "../AdminShell";
 import { OrderStatusForm } from "./OrderStatusForm";
@@ -119,9 +120,7 @@ export default async function AdminOrdersPage() {
 
                 <div className="admin-items">
                   {order.items.map((item) => (
-                    <span key={item.id}>
-                      {item.name} {item.quantity}x
-                    </span>
+                    <span key={item.id}>{orderItemQuantityLabel(item)}</span>
                   ))}
                 </div>
 

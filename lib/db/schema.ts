@@ -149,6 +149,7 @@ export const orderItems = pgTable("order_items", {
   }),
   name: text("name").notNull(),
   slug: text("slug").notNull(),
+  strength: text("strength").notNull().default(""),
   image: text("image").notNull(),
   unitPriceCents: integer("unit_price_cents").notNull(),
   quantity: integer("quantity").notNull(),

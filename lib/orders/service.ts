@@ -191,6 +191,7 @@ export async function createOrder(payload: CheckoutPayload, userId?: string | nu
       productId: product.id,
       name: product.name,
       slug: product.slug,
+      strength: product.strength,
       image: product.image,
       unitPriceCents: product.priceCents as number,
       quantity,

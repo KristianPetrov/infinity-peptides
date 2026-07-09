@@ -3,6 +3,7 @@ import Link from "next/link";
 import { formatPrice } from "@/lib/products";
 import { requireUser } from "@/lib/auth/session";
 import { listOrdersForCustomer } from "@/lib/orders/service";
+import { orderItemQuantityLabel } from "@/lib/orders/format";
 import { logoutAction } from "../auth-actions";
 
 export const metadata: Metadata = {
@@ -102,9 +103,7 @@ export default async function AccountPage() {
               </div>
               <div className="admin-items">
                 {order.items.map((item) => (
-                  <span key={item.id}>
-                    {item.name} {item.quantity}x
-                  </span>
+                  <span key={item.id}>{orderItemQuantityLabel(item)}</span>
                 ))}
               </div>
               <Link className="card-cta" href={`/order/${order.reference}`}>

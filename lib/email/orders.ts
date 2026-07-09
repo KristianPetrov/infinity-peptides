@@ -1,6 +1,7 @@
 import { Resend } from "resend";
 import { formatPrice } from "@/lib/products";
 import type { OrderWithItems } from "@/lib/orders/service";
+import { orderItemLabel } from "@/lib/orders/format";
 import {
   orderStatusLabel,
   siteUrl,
@@ -380,7 +381,7 @@ function orderSummary(order: OrderWithItems) {
     .map(
       (item) => `
         <tr>
-          <td style="${cell}">${escapeHtml(item.name)}<br/><small style="color:${COLORS.muted};">${escapeHtml(item.slug)} · Qty ${item.quantity}</small></td>
+          <td style="${cell}">${escapeHtml(orderItemLabel(item))}<br/><small style="color:${COLORS.muted};">Qty ${item.quantity}</small></td>
           <td style="${cellRight}">${formatPrice(item.unitPriceCents * item.quantity)}</td>
         </tr>
       `,
