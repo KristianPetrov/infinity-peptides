@@ -18,7 +18,7 @@ export const orderStatus = pgEnum("order_status", [
   "shipped",
   "cancelled",
 ]);
-export const paymentMethod = pgEnum("payment_method", ["zelle", "venmo"]);
+export const paymentMethod = pgEnum("payment_method", ["zelle", "apple_cash"]);
 export const discountType = pgEnum("discount_type", ["percent", "fixed"]);
 export const authTokenType = pgEnum("auth_token_type", [
   "email_verification",

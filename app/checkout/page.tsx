@@ -8,7 +8,8 @@ import { createCheckoutOrder } from "./actions";
 
 const ZELLE_RECIPIENT =
   process.env.NEXT_PUBLIC_ZELLE_RECIPIENT || "payments@infinity-peptides.com";
-const VENMO_HANDLE = process.env.NEXT_PUBLIC_VENMO_HANDLE || "@InfinityPeptides";
+const APPLE_CASH_PHONE = process.env.NEXT_PUBLIC_APPLE_CASH_PHONE || "9514258610";
+const APPLE_CASH_PHONE_DISPLAY = "(951) 425-8610";
 
 const SHIPPING = {
   standard: { label: "Standard shipping", note: "Discreet · 3–5 business days", cents: 1500 },
@@ -16,17 +17,13 @@ const SHIPPING = {
 } as const;
 
 type ShippingKey = keyof typeof SHIPPING;
-type PaymentKey = "zelle" | "venmo";
+type PaymentKey = "zelle" | "apple_cash";
 
-function venmoLink(handle: string, totalCents: number, ref: string) {
-  const params = new URLSearchParams({
-    txn: "pay",
-    audience: "private",
-    recipients: handle.replace(/^@/, ""),
-    amount: (totalCents / 100).toFixed(2),
-    note: ref,
-  });
-  return `https://venmo.com/?${params.toString()}`;
+function appleCashMessageLink(totalCents: number, ref: string) {
+  const digits = APPLE_CASH_PHONE.replace(/\D/g, "");
+  const phone = digits.length === 10 ? `+1${digits}` : `+${digits}`;
+  const message = `Infinity Peptides order ${ref} — ${formatPrice(totalCents)} via Apple Cash`;
+  return `sms:${phone}&body=${encodeURIComponent(message)}`;
 }
 
 const EMPTY_FORM = {
@@ -112,7 +109,7 @@ export default function CheckoutPage() {
     const summaryLines = [
       `Order reference: ${order.reference}`,
       `Total due: ${formatPrice(order.totalCents)}`,
-      `Payment options: Zelle (${ZELLE_RECIPIENT}) or Venmo (${VENMO_HANDLE})`,
+      `Payment options: Zelle (${ZELLE_RECIPIENT}) or Apple Pay via iMessage (${APPLE_CASH_PHONE_DISPLAY})`,
     ].join("%0D%0A");
     const mailto = `mailto:orders@infinity-peptides.com?subject=${encodeURIComponent(
       `Order ${order.reference}`,
@@ -128,7 +125,7 @@ export default function CheckoutPage() {
           <strong style={{ color: "var(--foreground, #f4f7fc)" }}>
             {order.email}
           </strong>
-          . Pay with <strong>either</strong> Zelle or Venmo below — only one
+          . Choose either Zelle or Apple Pay via iMessage below — only one
           payment is needed.
         </p>
         <span className="ref">{order.reference}</span>
@@ -142,21 +139,24 @@ export default function CheckoutPage() {
               address and put <strong>{order.reference}</strong> in the memo.
             </small>
           </div>
-          <div className="pay-card">
-            <h4>Option 2 · Venmo</h4>
-            <p>{VENMO_HANDLE}</p>
+          <div className="pay-card pay-card-message">
+            <div className="pay-card-heading">
+              <h4>Option 2 · Apple Pay via iMessage</h4>
+              <span className="iphone-pill">iPhone only</span>
+            </div>
+            <p>{APPLE_CASH_PHONE_DISPLAY}</p>
             <small>
-              Send {formatPrice(order.totalCents)} with{" "}
-              <strong>{order.reference}</strong> in the note, or{" "}
-              <a
-                href={venmoLink(VENMO_HANDLE, order.totalCents, order.reference)}
-                target="_blank"
-                rel="noreferrer"
-                style={{ color: "var(--cyan)", textDecoration: "underline" }}
-              >
-                open Venmo with the amount prefilled →
-              </a>
+              Tap below on your iPhone, then use Apple Cash in Messages to send{" "}
+              <strong>{formatPrice(order.totalCents)}</strong>. Your order
+              reference is prefilled.
             </small>
+            <a
+              className="message-pay-button"
+              href={appleCashMessageLink(order.totalCents, order.reference)}
+            >
+              <span className="message-pay-icon" aria-hidden="true">$</span>
+              Open iMessage
+            </a>
           </div>
         </div>
 
@@ -166,14 +166,14 @@ export default function CheckoutPage() {
         >
           <h3>Payment steps</h3>
           <ol style={{ margin: 0, paddingLeft: 20, lineHeight: 1.9, color: "var(--muted)" }}>
-            <li>Pick Zelle or Venmo — whichever is easier for you.</li>
+            <li>Pick Zelle or Apple Pay via iMessage.</li>
             <li>
               Send the exact total of{" "}
               <strong>{formatPrice(order.totalCents)}</strong>.
             </li>
             <li>
               Include your order reference <strong>{order.reference}</strong>{" "}
-              in the memo / note so we can match your payment.
+              in the Zelle memo or iMessage so we can match your payment.
             </li>
             <li>
               Once payment is verified you&apos;ll receive a receipt email, and
@@ -335,8 +335,8 @@ export default function CheckoutPage() {
           <section className="field-card">
             <h3>Preferred payment</h3>
             <p className="hint">
-              Manual payment. You will receive both options on the confirmation
-              screen.
+              Choose the option you plan to use. Full instructions appear after
+              you place your order.
             </p>
             <div className="option-row">
               <label className={`option ${payment === "zelle" ? "selected" : ""}`}>
@@ -351,16 +351,19 @@ export default function CheckoutPage() {
                   <span>{ZELLE_RECIPIENT}</span>
                 </span>
               </label>
-              <label className={`option ${payment === "venmo" ? "selected" : ""}`}>
+              <label className={`option payment-option ${payment === "apple_cash" ? "selected" : ""}`}>
                 <input
                   type="radio"
                   name="payment"
-                  checked={payment === "venmo"}
-                  onChange={() => setPayment("venmo")}
+                  checked={payment === "apple_cash"}
+                  onChange={() => setPayment("apple_cash")}
                 />
                 <span className="option-body">
-                  <strong>Venmo</strong>
-                  <span>{VENMO_HANDLE}</span>
+                  <span className="payment-option-title">
+                    <strong>Apple Pay via iMessage</strong>
+                    <em>iPhone only</em>
+                  </span>
+                  <span>Send Apple Cash to {APPLE_CASH_PHONE_DISPLAY}</span>
                 </span>
               </label>
             </div>

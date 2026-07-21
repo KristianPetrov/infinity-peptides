@@ -15,7 +15,7 @@ export const ORDER_STATUS_OPTIONS = [
 export const SHIPPING_CARRIERS = ["USPS", "UPS", "FedEx", "DHL"] as const;
 
 export type ShippingMethod = keyof typeof SHIPPING_METHODS;
-export type PaymentMethod = "zelle" | "venmo";
+export type PaymentMethod = "zelle" | "apple_cash";
 export type OrderStatus = (typeof ORDER_STATUSES)[number];
 export type ShippingCarrier = (typeof SHIPPING_CARRIERS)[number];
 
@@ -27,23 +27,32 @@ export function zelleRecipient() {
   return process.env.NEXT_PUBLIC_ZELLE_RECIPIENT || "payments@infinity-peptides.com";
 }
 
-export function venmoHandle() {
-  return process.env.NEXT_PUBLIC_VENMO_HANDLE || "@InfinityPeptides";
+export function appleCashPhone() {
+  return process.env.NEXT_PUBLIC_APPLE_CASH_PHONE || "9514258610";
+}
+
+export function appleCashPhoneDisplay() {
+  const digits = appleCashPhone().replace(/\D/g, "").replace(/^1(?=\d{10}$)/, "");
+  if (digits.length !== 10) return appleCashPhone();
+  return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+}
+
+export function paymentMethodLabel(method: PaymentMethod) {
+  return method === "zelle" ? "Zelle" : "Apple Pay via iMessage";
 }
 
 export function siteUrl() {
   return process.env.NEXT_PUBLIC_SITE_URL || "https://infinity-peptides.com";
 }
 
-export function venmoLink(totalCents: number, reference: string) {
-  const params = new URLSearchParams({
-    txn: "pay",
-    audience: "private",
-    recipients: venmoHandle().replace(/^@/, ""),
-    amount: (totalCents / 100).toFixed(2),
-    note: reference,
-  });
-  return `https://venmo.com/?${params.toString()}`;
+export function appleCashMessageLink(totalCents: number, reference: string) {
+  const digits = appleCashPhone().replace(/\D/g, "");
+  const phone = digits.length === 10 ? `+1${digits}` : `+${digits}`;
+  const amount = `$${(totalCents / 100).toFixed(2)}`;
+  const message = `Infinity Peptides order ${reference} — ${amount} via Apple Cash`;
+
+  // The ampersand separator opens a prefilled compose window in Messages on iPhone.
+  return `sms:${phone}&body=${encodeURIComponent(message)}`;
 }
 
 export function trackingUrl(carrier?: string | null, trackingNumber?: string | null) {

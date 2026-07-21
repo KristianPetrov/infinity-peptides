@@ -10,7 +10,7 @@ Build a dark, premium ecommerce storefront for research peptides with:
 
 - Public catalog and product detail pages.
 - Client-side cart with persistent local storage.
-- Checkout with shipping address, shipping method, manual Zelle/Venmo payment preference, referral code, and required Research Use Only confirmation.
+- Checkout with shipping address, shipping method, manual Zelle/Apple Cash payment preference, referral code, and required Research Use Only confirmation.
 - Orders created immediately as `pending_payment`.
 - Manual admin workflow to mark orders paid, ship orders with tracking, cancel orders, and manage inventory.
 - Customer accounts with verified email sign-in and order history.
@@ -55,7 +55,7 @@ ADMIN_NOTIFICATION_EMAIL="admin@example.com"
 
 NEXT_PUBLIC_SITE_URL="https://example.com"
 NEXT_PUBLIC_ZELLE_RECIPIENT="payments@example.com"
-NEXT_PUBLIC_VENMO_HANDLE="YourVenmoHandle"
+NEXT_PUBLIC_APPLE_CASH_PHONE="9514258610"
 
 SEED_ADMIN_EMAIL="admin@example.com"
 SEED_ADMIN_PASSWORD="replace-with-strong-password"
@@ -67,7 +67,7 @@ Behavior:
 - `AUTH_SECRET` is required by Auth.js.
 - `RESEND_API_KEY` enables emails. If absent, email sends should no-op with a server warning.
 - `NEXT_PUBLIC_SITE_URL` is used in metadata, auth links, password reset links, order links, and admin email links.
-- `NEXT_PUBLIC_ZELLE_RECIPIENT` and `NEXT_PUBLIC_VENMO_HANDLE` appear at checkout, on order pages, and in order emails.
+- `NEXT_PUBLIC_ZELLE_RECIPIENT` and `NEXT_PUBLIC_APPLE_CASH_PHONE` appear at checkout, on order pages, and in order emails.
 - `SEED_ADMIN_EMAIL` and `SEED_ADMIN_PASSWORD` create or update the first admin account during seeding.
 
 ## 4. Database Schema
@@ -79,7 +79,7 @@ Use cents for all monetary values. Use UUID primary keys. Use order item snapsho
 ```text
 user_role: customer, admin
 order_status: pending_payment, paid, shipped, cancelled
-payment_method: zelle, venmo
+payment_method: zelle, apple_cash
 discount_type: percent, fixed
 auth_token_type: email_verification, password_reset
 ```
@@ -564,7 +564,7 @@ Checkout form sections:
   - `overnight`: label `Overnight shipping`, price `5000`.
 - Preferred payment method:
   - `zelle`.
-  - `venmo`.
+  - `apple_cash`.
   - The selected method is a preference for records; customer receives both options.
 - Referral code input:
   - Preview discount through public server action.
@@ -617,21 +617,19 @@ No payment processor is integrated.
 Customer sees:
 
 - Zelle recipient from `NEXT_PUBLIC_ZELLE_RECIPIENT`.
-- Venmo handle from `NEXT_PUBLIC_VENMO_HANDLE`.
-- Venmo deep link with amount and order reference prefilled.
-- Instruction to include order reference in the payment note.
+- Apple Cash phone number from `NEXT_PUBLIC_APPLE_CASH_PHONE`.
+- iPhone Messages link addressed to that number with the amount and order reference prefilled.
+- Instructions to tap `+`, choose Apple Cash, and send the exact amount.
+- Instruction to include the order reference with the payment.
 
-Venmo link format:
+Apple Cash Messages link format:
 
 ```ts
-const params = new URLSearchParams({
-  txn: "pay",
-  audience: "private",
-  recipients: venmoHandleWithoutAt,
-  amount: (totalCents / 100).toFixed(2),
-  note: orderReference,
-});
-return `https://venmo.com/?${params.toString()}`;
+const phone = "+19514258610";
+const body = encodeURIComponent(
+  `Order ${orderReference} — $${(totalCents / 100).toFixed(2)} via Apple Cash`,
+);
+return `sms:${phone}&body=${body}`;
 ```
 
 Admin manually verifies payment outside the app, then marks the order paid.
@@ -1087,7 +1085,7 @@ Replace:
 - Logo assets.
 - Product label designs.
 - Email sender names/domains.
-- Zelle/Venmo recipient.
+- Zelle and Apple Cash recipients.
 - Legal entity and support contact.
 - Admin seed account.
 - Any product list, pricing, inventory, and categories that differ.

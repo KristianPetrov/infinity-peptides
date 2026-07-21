@@ -38,8 +38,9 @@ export default function TermsPage() {
         <h2>Payment</h2>
         <p>
           Payment is collected manually via the methods presented at checkout
-          (Zelle or Venmo). Your order reference must be included in the payment
-          note. No payment-card processing occurs on this site.
+          (Zelle or Apple Cash via iMessage on iPhone). Your order reference must
+          be included with the payment. No payment-card processing occurs on
+          this site.
         </p>
 
         <h2>Shipping</h2>

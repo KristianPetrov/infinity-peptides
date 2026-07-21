@@ -22,6 +22,13 @@
       "when": 1783640867534,
       "tag": "0002_dear_zombie",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1784658614637,
+      "tag": "0003_stale_magdalene",
+      "breakpoints": true
     }
   ]
 }

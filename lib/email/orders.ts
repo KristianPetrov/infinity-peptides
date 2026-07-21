@@ -3,11 +3,12 @@ import { formatPrice } from "@/lib/products";
 import type { OrderWithItems } from "@/lib/orders/service";
 import { orderItemLabel } from "@/lib/orders/format";
 import {
+  appleCashMessageLink,
+  appleCashPhoneDisplay,
   orderStatusLabel,
+  paymentMethodLabel,
   siteUrl,
   trackingUrl,
-  venmoHandle,
-  venmoLink,
   zelleRecipient,
   type OrderStatus,
 } from "@/lib/orders/config";
@@ -112,7 +113,7 @@ export async function sendAdminNewOrder(order: OrderWithItems) {
         ${adminCustomerPanel(order)}
         <div class="panel">
           <p><strong>Total:</strong> ${formatPrice(order.totalCents)}</p>
-          <p><strong>Preferred payment:</strong> ${order.paymentMethod}</p>
+          <p><strong>Preferred payment:</strong> ${paymentMethodLabel(order.paymentMethod)}</p>
         </div>
         ${orderSummary(order)}
         <p><a href="${siteUrl()}/admin/orders">Open admin dashboard</a></p>
@@ -261,7 +262,7 @@ function adminCustomerPanel(order: OrderWithItems) {
   `;
 }
 
-// Manual payment panel showing BOTH Zelle and Venmo with step-by-step
+// Manual payment panel showing both Zelle and Apple Cash with step-by-step
 // instructions. Used on every payment-pending email.
 function paymentPanel(order: OrderWithItems) {
   const total = formatPrice(order.totalCents);
@@ -288,22 +289,37 @@ function paymentPanel(order: OrderWithItems) {
         </tr>
         <tr>
           <td style="border:1px solid ${COLORS.line};border-radius:12px;padding:14px 16px;background:rgba(255,255,255,0.03);">
-            <p style="margin:0 0 2px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:${COLORS.muted};">Option 2 · Venmo</p>
-            <p style="margin:0;font-size:17px;font-weight:700;color:${COLORS.foreground};">${escapeHtml(venmoHandle())}</p>
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td style="padding:0;">
+                  <p style="margin:0 0 2px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:${COLORS.muted};">Option 2 · Apple Pay via iMessage</p>
+                </td>
+                <td align="right" style="padding:0 0 0 8px;">
+                  <span style="display:inline-block;border:1px solid rgba(78,231,242,.35);border-radius:999px;padding:4px 8px;background:rgba(78,231,242,.1);color:${COLORS.cyan};font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;">iPhone only</span>
+                </td>
+              </tr>
+            </table>
+            <p style="margin:0;font-size:17px;font-weight:700;color:${COLORS.foreground};">${escapeHtml(appleCashPhoneDisplay())}</p>
             <p style="margin:6px 0 0;color:${COLORS.body};font-size:14px;line-height:1.6;">
-              Send ${total} to the handle above with
-              <strong style="color:${COLORS.foreground};">${ref}</strong> in the payment note, or
-              <a href="${venmoLink(order.totalCents, order.reference)}" style="color:${COLORS.cyan};">open Venmo with the amount prefilled</a>.
+              On your iPhone, open the prefilled message, tap <strong style="color:${COLORS.foreground};">+</strong>,
+              choose Apple Cash, and send <strong style="color:${COLORS.foreground};">${total}</strong>.
             </p>
+            <table role="presentation" cellpadding="0" cellspacing="0" style="margin:12px 0 2px;width:auto;">
+              <tr>
+                <td style="border-radius:999px;background:#27c65f;">
+                  <a href="${escapeHtml(appleCashMessageLink(order.totalCents, order.reference))}" style="display:inline-block;padding:10px 18px;font-weight:700;font-size:14px;color:#041109;text-decoration:none;border-radius:999px;">Open iMessage</a>
+                </td>
+              </tr>
+            </table>
           </td>
         </tr>
       </table>
 
       <p style="margin:14px 0 0;color:${COLORS.body};font-size:14px;line-height:1.7;">
         <strong style="color:${COLORS.foreground};">Payment steps</strong><br/>
-        1. Pick Zelle or Venmo — only one payment is needed.<br/>
+        1. Pick Zelle or Apple Pay via iMessage — only one payment is needed.<br/>
         2. Send the exact total of <strong style="color:${COLORS.foreground};">${total}</strong>.<br/>
-        3. Include your order reference <strong style="color:${COLORS.foreground};">${ref}</strong> in the memo / note so we can match your payment.<br/>
+        3. Include your order reference <strong style="color:${COLORS.foreground};">${ref}</strong> in the Zelle memo or iMessage so we can match your payment.<br/>
         4. Once your payment is verified you'll receive a receipt email, and a tracking number when your order ships.
       </p>
     </div>

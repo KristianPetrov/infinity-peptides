@@ -1944,6 +1944,37 @@ img {
   font-size: 0.86rem;
 }
 
+.payment-option-title {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 2px;
+}
+
+.option-body .payment-option-title strong {
+  display: inline;
+}
+
+.payment-option-title em,
+.iphone-pill {
+  display: inline-flex;
+  align-items: center;
+  width: max-content;
+  padding: 4px 8px;
+  border: 1px solid rgba(78, 231, 242, 0.34);
+  border-radius: 999px;
+  background: rgba(78, 231, 242, 0.1);
+  color: var(--cyan);
+  font-size: 0.62rem;
+  font-style: normal;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
 .option-price {
   color: #fff;
   font-weight: 700;
@@ -2111,6 +2142,25 @@ img {
   background: var(--panel);
 }
 
+.pay-card-message {
+  border-color: rgba(78, 231, 242, 0.24);
+  background:
+    radial-gradient(circle at 100% 0, rgba(39, 198, 95, 0.13), transparent 45%),
+    var(--panel);
+}
+
+.pay-card-heading {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.pay-card .pay-card-heading h4 {
+  margin-bottom: 0;
+}
+
 .pay-card h4 {
   margin-bottom: 8px;
   color: var(--gold);
@@ -2133,6 +2183,41 @@ img {
   color: var(--muted);
   font-size: 0.82rem;
   line-height: 1.5;
+}
+
+.message-pay-button {
+  display: inline-flex;
+  gap: 9px;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  margin-top: 16px;
+  padding: 9px 16px 9px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  background: linear-gradient(135deg, #35dc74, #22b95b);
+  color: #041109;
+  font-size: 0.84rem;
+  font-weight: 800;
+  box-shadow: 0 10px 24px rgba(32, 184, 88, 0.2);
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.message-pay-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 30px rgba(32, 184, 88, 0.3);
+}
+
+.message-pay-icon {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #fff;
+  color: #169848;
+  font-size: 0.78rem;
+  font-weight: 900;
 }
 
 /* ============================================================
@@ -2850,6 +2935,17 @@ img {
   }
   .field-grid {
     grid-template-columns: 1fr;
+  }
+  .field-card,
+  .pay-card,
+  .summary {
+    padding-inline: 20px;
+  }
+  .pay-card-heading {
+    align-items: flex-start;
+  }
+  .message-pay-button {
+    width: 100%;
   }
   .footer-grid {
     grid-template-columns: 1fr;
