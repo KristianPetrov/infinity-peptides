@@ -12,7 +12,8 @@
 .env.example
 # testing
 /coverage
-
+design.md
+PEPTIDE_WEBSITE_AI_BLUEPRINT.md
 # next.js
 /.next/
 /out/
