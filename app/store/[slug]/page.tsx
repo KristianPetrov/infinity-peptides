@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
-  formatPrice,
+  formatProductPrice,
   getProductBySlug,
   getProductVariants,
   groupProducts,
@@ -133,8 +133,14 @@ export default async function ProductPage({ params }: Params) {
           <span className="pdp-tag">{product.tag}</span>
 
           <div className="pdp-price">
-            <strong>{formatPrice(product.priceCents)}</strong>
-            <span>per research vial · USD</span>
+            <strong className={product.priceCents == null ? "inquiry-price" : undefined}>
+              {formatProductPrice(product)}
+            </strong>
+            <span>
+              {product.priceCents == null
+                ? "Contact us for availability"
+                : "per research vial · USD"}
+            </span>
           </div>
 
           <p className="pdp-desc">{product.description}</p>

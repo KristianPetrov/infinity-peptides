@@ -23,6 +23,7 @@ export type Product = {
   name: string;
   strength: string;
   priceCents?: number; // undefined => inquiry-only
+  inquiryLabel?: string;
   imageSrc?: string;
   form?: string;
   category: Category;
@@ -73,7 +74,6 @@ const PRODUCT_IMAGE_BY_SLUG: Partial<Record<string, string>> = {
   "ghk-cu-100mg": "/products/ghk-cu-100mg.png",
   "ghk-cu-50mg": "/products/ghk-cu-50mg.png",
   "glow-70mg": "/products/glow-70mg.png",
-  "glp-3-10mg": "/products/glp-3-10mg.png",
   glutathione: "/products/glutathione.png",
   "igf-1lr3-1mg": "/products/igf-1lr3-1mg.png",
   "ipamorelin-10mg": "/products/ipamorelin-10mg.png",
@@ -104,7 +104,6 @@ const PRODUCT_IMAGE_BY_SLUG: Partial<Record<string, string>> = {
   "tirzepatide-10mg": "/products/tirzepatide-10mg.png",
   "tirzepatide-20mg": "/products/tirzepatide-20mg.png",
   "tirzepatide-30mg": "/products/tirzepatide-30mg.png",
-  "tirzepatide-40mg": "/products/tirzepatide-30mg.png",
 };
 
 const FREEDOM_DIAGNOSTICS_COA_BASE_URL =
@@ -173,6 +172,26 @@ const catalogProducts: Product[] = [
     ),
   },
   {
+    slug: "retatrutide-40mg",
+    name: "Retatrutide",
+    strength: "40 mg",
+    inquiryLabel: "Inquiry Only — Pricing Coming Soon",
+    category: "Metabolic Research",
+    tag: "Triple-agonist (high concentration)",
+    description:
+      "A high-concentration Retatrutide vial for extended metabolic research protocols comparing triple-agonist signaling.",
+  },
+  {
+    slug: "retatrutide-50mg",
+    name: "Retatrutide",
+    strength: "50 mg",
+    inquiryLabel: "Inquiry Only — Pricing Coming Soon",
+    category: "Metabolic Research",
+    tag: "Triple-agonist (max concentration)",
+    description:
+      "The highest-concentration Retatrutide vial in the catalog, intended for extended metabolic research protocols comparing triple-agonist signaling.",
+  },
+  {
     slug: "tirzepatide-10mg",
     name: "Tirzepatide",
     strength: "10 mg",
@@ -222,16 +241,26 @@ const catalogProducts: Product[] = [
     slug: "tirzepatide-40mg",
     name: "Tirzepatide",
     strength: "40 mg",
-    priceCents: 8400,
+    inquiryLabel: "Inquiry Only — Pricing Coming Soon",
     category: "Metabolic Research",
-    tag: "Dual GIP / GLP-1 (max concentration)",
+    tag: "Dual GIP / GLP-1 (high concentration)",
     description:
-      "The highest-concentration Tirzepatide vial in the catalog for comparative dual-agonist incretin research.",
+      "A high-concentration Tirzepatide vial for extended dual-agonist incretin research protocols.",
     certificateOfAnalysis: freedomDiagnosticsCoa(
       "BGSR2607010604",
       "07/03/2026",
       "99.83%",
     ),
+  },
+  {
+    slug: "tirzepatide-50mg",
+    name: "Tirzepatide",
+    strength: "50 mg",
+    inquiryLabel: "Inquiry Only — Pricing Coming Soon",
+    category: "Metabolic Research",
+    tag: "Dual GIP / GLP-1 (max concentration)",
+    description:
+      "The highest-concentration Tirzepatide vial in the catalog for comparative dual-agonist incretin research.",
   },
   {
     slug: "semaglutide-10mg",
@@ -257,7 +286,7 @@ const catalogProducts: Product[] = [
     slug: "cagrilintide-10mg",
     name: "Cagrilintide",
     strength: "10 mg",
-    priceCents: 7000,
+    priceCents: 4000,
     category: "Metabolic Research",
     tag: "Long-acting amylin analog",
     description:
@@ -304,15 +333,6 @@ const catalogProducts: Product[] = [
       "Glutathione is an endogenous tripeptide antioxidant referenced in oxidative-stress and redox-balance research models.",
   },
   {
-    slug: "glp-3-10mg",
-    name: "GLP-3",
-    strength: "10 mg",
-    category: "Metabolic Research",
-    tag: "GLP-series research peptide",
-    description:
-      "GLP-3 is a GLP-series reference peptide intended for comparative metabolic-pathway and incretin-family research models.",
-  },
-  {
     slug: "lipo-b-10ml",
     name: "Lipo-B",
     strength: "10 mL",
@@ -335,8 +355,9 @@ const catalogProducts: Product[] = [
   },
   {
     slug: "lipo-c-10ml",
-    name: "Lipo-C",
+    name: "LIPO-C",
     strength: "10 mL",
+    priceCents: 4000,
     form: "Research blend solution",
     category: "Metabolic Research",
     tag: "Lipotropic research blend",
@@ -353,8 +374,8 @@ const catalogProducts: Product[] = [
   // ---------------- Repair & Matrix ----------------
   {
     slug: "bpc-157-tb-500-10mg",
-    name: "BPC-157 + TB-500",
-    strength: "10 mg + 10 mg",
+    name: "BPC-157/TB-500",
+    strength: "10 mg / 10 mg",
     priceCents: 8000,
     category: "Repair & Matrix",
     tag: "Dual repair blend",
@@ -364,8 +385,9 @@ const catalogProducts: Product[] = [
   },
   {
     slug: "bpc-157-tb-500-5mg",
-    name: "BPC-157 + TB-500",
-    strength: "5 mg + 5 mg",
+    name: "BPC-157/TB-500",
+    strength: "5 mg / 5 mg",
+    priceCents: 4000,
     category: "Repair & Matrix",
     tag: "Dual repair blend (compact)",
     description:
@@ -373,9 +395,9 @@ const catalogProducts: Product[] = [
   },
   {
     slug: "glow-70mg",
-    name: "Glow",
+    name: "GLOW",
     strength: "70 mg",
-    priceCents: 9000,
+    priceCents: 8000,
     category: "Repair & Matrix",
     tag: "Skin & recovery research blend",
     description:
@@ -386,7 +408,7 @@ const catalogProducts: Product[] = [
     slug: "klow",
     name: "KLOW",
     strength: "Research blend",
-    priceCents: 10000,
+    priceCents: 8500,
     category: "Repair & Matrix",
     tag: "Multi-peptide regeneration blend",
     description:
@@ -396,7 +418,7 @@ const catalogProducts: Product[] = [
     slug: "tb-500-10mg",
     name: "TB-500",
     strength: "10 mg",
-    priceCents: 5000,
+    priceCents: 4000,
     category: "Repair & Matrix",
     tag: "Thymosin Beta-4 fragment",
     description:
@@ -411,7 +433,7 @@ const catalogProducts: Product[] = [
     slug: "bpc-157-10mg",
     name: "BPC-157",
     strength: "10 mg",
-    priceCents: 5000,
+    priceCents: 4000,
     category: "Repair & Matrix",
     tag: "Body Protection Compound",
     description:
@@ -421,7 +443,7 @@ const catalogProducts: Product[] = [
     slug: "ghk-cu-50mg",
     name: "GHK-Cu",
     strength: "50 mg",
-    priceCents: 5000,
+    priceCents: 4000,
     category: "Repair & Matrix",
     tag: "Copper-binding tripeptide",
     description:
@@ -485,6 +507,7 @@ const catalogProducts: Product[] = [
     slug: "igf-1lr3-1mg",
     name: "IGF-1 LR3",
     strength: "1 mg",
+    priceCents: 5000,
     category: "Growth & Signaling",
     tag: "Long R3 IGF-1 analog",
     description:
@@ -624,12 +647,33 @@ const catalogProducts: Product[] = [
     description:
       "SLU-PP-332 is an estrogen-related-receptor (ERR) pan-agonist studied in mitochondrial-biogenesis and exercise-mimetic research.",
   },
+  {
+    slug: "5-amino-1mq-5mg",
+    name: "5-Amino-1MQ",
+    strength: "5 mg",
+    priceCents: 4000,
+    category: "Longevity & Cellular",
+    tag: "NNMT inhibitor research compound",
+    description:
+      "5-Amino-1MQ is a small-molecule NNMT inhibitor referenced in preclinical cellular-metabolism and energy-balance research.",
+  },
+  {
+    slug: "5-amino-1mq-10mg",
+    name: "5-Amino-1MQ",
+    strength: "10 mg",
+    priceCents: 5000,
+    category: "Longevity & Cellular",
+    tag: "NNMT inhibitor research compound",
+    description:
+      "A higher-concentration 5-Amino-1MQ research vial for extended cellular-metabolism and energy-balance investigations.",
+  },
 
   // ---------------- Research Support ----------------
   {
     slug: "bac-water-10ml",
     name: "BAC Water",
     strength: "10 mL",
+    priceCents: 800,
     form: "Laboratory support solution",
     category: "Research Support",
     tag: "Laboratory diluent reference",
@@ -712,6 +756,12 @@ export function formatPrice(cents?: number): string {
     minimumFractionDigits: cents % 100 === 0 ? 0 : 2,
     maximumFractionDigits: 2,
   })}`;
+}
+
+export function formatProductPrice(product: Product): string {
+  return product.priceCents == null
+    ? (product.inquiryLabel ?? "Inquire")
+    : formatPrice(product.priceCents);
 }
 
 export function getProductBySlug(slug: string): Product | undefined {

@@ -1180,6 +1180,12 @@ img {
   font-weight: 800;
 }
 
+.product-footer strong.inquiry-price {
+  max-width: 150px;
+  font-size: 0.82rem;
+  line-height: 1.3;
+}
+
 .product-actions {
   display: flex;
   gap: 8px;
@@ -1639,6 +1645,11 @@ img {
   color: #fff;
   font-size: 2.4rem;
   font-weight: 800;
+}
+
+.pdp-price strong.inquiry-price {
+  font-size: 1.65rem;
+  line-height: 1.2;
 }
 
 .pdp-price span {

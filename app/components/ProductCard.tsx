@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import type { ProductGroup } from "@/lib/products";
-import { formatPrice } from "@/lib/products";
+import { formatProductPrice } from "@/lib/products";
 import { AddToCartButton } from "./AddToCartButton";
 import { ProductImage } from "./ProductImage";
 
@@ -66,7 +66,9 @@ export function ProductCard({
         )}
       </div>
       <div className="product-footer">
-        <strong>{formatPrice(selected.priceCents)}</strong>
+        <strong className={selected.priceCents == null ? "inquiry-price" : undefined}>
+          {formatProductPrice(selected)}
+        </strong>
         <div className="product-actions">
           <Link className="card-cta" href={`/store/${selected.slug}`}>
             Details
