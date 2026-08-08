@@ -59,6 +59,8 @@ export const CATEGORY_BLURB: Record<Category, string> = {
 };
 
 const PRODUCT_IMAGE_BY_SLUG: Partial<Record<string, string>> = {
+  "5-amino-1mq-5mg": "/products/5-amino-1mq-5mg.png",
+  "5-amino-1mq-10mg": "/products/5-amino-1mq-10mg.png",
   "aod-9604-10mg": "/products/aod-9604-10mg.png",
   "bac-water-10ml": "/products/bac-water-10ml.png",
   "bac-water-3ml": "/products/bac-water-3ml.png",
@@ -90,6 +92,8 @@ const PRODUCT_IMAGE_BY_SLUG: Partial<Record<string, string>> = {
   "retatrutide-10mg": "/products/retatrutide-10mg.png",
   "retatrutide-20mg": "/products/retatrutide-20mg.png",
   "retatrutide-30mg": "/products/retatrutide-30mg.png",
+  "retatrutide-40mg": "/products/retatrutide-40mg.png",
+  "retatrutide-50mg": "/products/retatrutide-50mg.png",
   "retatrutide-cagrilintide-5mg-5mg":
     "/products/retatrutide-cagrilintide-5mg-5mg.png",
   "selank-10mg": "/products/selank-10mg.png",
@@ -104,6 +108,8 @@ const PRODUCT_IMAGE_BY_SLUG: Partial<Record<string, string>> = {
   "tirzepatide-10mg": "/products/tirzepatide-10mg.png",
   "tirzepatide-20mg": "/products/tirzepatide-20mg.png",
   "tirzepatide-30mg": "/products/tirzepatide-30mg.png",
+  "tirzepatide-40mg": "/products/tirzepatide-40mg.png",
+  "tirzepatide-50mg": "/products/tirzepatide-50mg.png",
 };
 
 const FREEDOM_DIAGNOSTICS_COA_BASE_URL =
