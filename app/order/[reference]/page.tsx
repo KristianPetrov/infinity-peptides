@@ -8,6 +8,9 @@ import {
   appleCashMessageLink,
   appleCashPhoneDisplay,
   orderStatusLabel,
+  paymentMethodLabel,
+  resolveShippingMethod,
+  shippingMethodLabel,
   trackingUrl,
   zelleRecipient,
 } from "@/lib/orders/config";
@@ -40,6 +43,7 @@ export default async function OrderPage({ params, searchParams }: Props) {
   }
 
   const shipLink = trackingUrl(order.carrier, order.trackingNumber);
+  const shippingMethod = resolveShippingMethod(order);
 
   return (
     <div className="confirm" style={{ textAlign: "left" }}>
@@ -51,7 +55,10 @@ export default async function OrderPage({ params, searchParams }: Props) {
         <div className="pay-card">
           <h4>Total</h4>
           <p>{formatPrice(order.totalCents)}</p>
-          <small>Pay with Zelle or Apple Pay via iMessage — only one payment is needed</small>
+          <small>
+            {shippingMethodLabel(shippingMethod)} · preferred payment{" "}
+            {paymentMethodLabel(order.paymentMethod)}
+          </small>
         </div>
         <div className="pay-card">
           <h4>Placed by</h4>
@@ -145,7 +152,7 @@ export default async function OrderPage({ params, searchParams }: Props) {
             <span>{formatPrice(order.subtotalCents)}</span>
           </div>
           <div>
-            <span>Shipping</span>
+            <span>{shippingMethodLabel(shippingMethod)}</span>
             <span>{formatPrice(order.shippingCents)}</span>
           </div>
           <div className="grand">

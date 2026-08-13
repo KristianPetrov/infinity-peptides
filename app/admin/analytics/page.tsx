@@ -2,6 +2,13 @@ import type { Metadata } from "next";
 import { formatPrice } from "@/lib/products";
 import { requireAdmin } from "@/lib/admin/auth";
 import { listInventory, listOrders } from "@/lib/orders/service";
+import {
+  paymentMethodLabel,
+  resolveShippingMethod,
+  shippingMethodLabel,
+  type PaymentMethod,
+  type ShippingMethod,
+} from "@/lib/orders/config";
 import { AdminShell } from "../AdminShell";
 
 export const metadata: Metadata = {
@@ -22,6 +29,15 @@ export default async function AdminAnalyticsPage() {
 
   const statusCounts = orders.reduce<Record<string, number>>((acc, order) => {
     acc[order.status] = (acc[order.status] || 0) + 1;
+    return acc;
+  }, {});
+  const paymentCounts = orders.reduce<Record<string, number>>((acc, order) => {
+    acc[order.paymentMethod] = (acc[order.paymentMethod] || 0) + 1;
+    return acc;
+  }, {});
+  const shippingCounts = orders.reduce<Record<string, number>>((acc, order) => {
+    const method = resolveShippingMethod(order);
+    acc[method] = (acc[method] || 0) + 1;
     return acc;
   }, {});
 
@@ -51,6 +67,30 @@ export default async function AdminAnalyticsPage() {
             lowStock.map((product) => (
               <p key={product.id}>
                 {product.name} {product.strength}: <strong>{product.inventory}</strong>
+              </p>
+            ))
+          )}
+        </article>
+        <article className="value-card">
+          <h3>Payment preference</h3>
+          {Object.entries(paymentCounts).length === 0 ? (
+            <p>No orders yet.</p>
+          ) : (
+            Object.entries(paymentCounts).map(([method, count]) => (
+              <p key={method}>
+                {paymentMethodLabel(method as PaymentMethod)}: <strong>{count}</strong>
+              </p>
+            ))
+          )}
+        </article>
+        <article className="value-card">
+          <h3>Shipping method</h3>
+          {Object.entries(shippingCounts).length === 0 ? (
+            <p>No orders yet.</p>
+          ) : (
+            Object.entries(shippingCounts).map(([method, count]) => (
+              <p key={method}>
+                {shippingMethodLabel(method as ShippingMethod)}: <strong>{count}</strong>
               </p>
             ))
           )}

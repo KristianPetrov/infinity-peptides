@@ -41,6 +41,20 @@ export function paymentMethodLabel(method: PaymentMethod) {
   return method === "zelle" ? "Zelle" : "Apple Pay via iMessage";
 }
 
+export function shippingMethodLabel(method: ShippingMethod) {
+  return SHIPPING_METHODS[method].label;
+}
+
+export function resolveShippingMethod(order: {
+  shippingCents: number;
+  shippingAddress?: { shippingMethod?: ShippingMethod };
+}): ShippingMethod {
+  const stored = order.shippingAddress?.shippingMethod;
+  if (stored && stored in SHIPPING_METHODS) return stored;
+  if (order.shippingCents === SHIPPING_METHODS.overnight.cents) return "overnight";
+  return "standard";
+}
+
 export function siteUrl() {
   return process.env.NEXT_PUBLIC_SITE_URL || "https://infinity-peptides.com";
 }

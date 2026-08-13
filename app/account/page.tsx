@@ -4,6 +4,12 @@ import { formatPrice } from "@/lib/products";
 import { requireUser } from "@/lib/auth/session";
 import { listOrdersForCustomer } from "@/lib/orders/service";
 import { orderItemQuantityLabel } from "@/lib/orders/format";
+import {
+  orderStatusLabel,
+  paymentMethodLabel,
+  resolveShippingMethod,
+  shippingMethodLabel,
+} from "@/lib/orders/config";
 import { logoutAction } from "../auth-actions";
 
 export const metadata: Metadata = {
@@ -95,7 +101,18 @@ export default async function AccountPage() {
                   <h3>{order.reference}</h3>
                   <p>{new Date(order.createdAt).toLocaleString()}</p>
                 </div>
-                <span className="admin-status">{order.status.replace("_", " ")}</span>
+                <span className="admin-status">{orderStatusLabel(order.status)}</span>
+              </div>
+              <div className="summary-line">
+                <span>Shipping</span>
+                <span>
+                  {shippingMethodLabel(resolveShippingMethod(order))} ·{" "}
+                  {formatPrice(order.shippingCents)}
+                </span>
+              </div>
+              <div className="summary-line">
+                <span>Payment preference</span>
+                <span>{paymentMethodLabel(order.paymentMethod)}</span>
               </div>
               <div className="summary-line">
                 <span>Total</span>

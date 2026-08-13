@@ -3,7 +3,13 @@ import { formatPrice } from "@/lib/products";
 import { requireAdmin } from "@/lib/admin/auth";
 import { listOrders } from "@/lib/orders/service";
 import { orderItemQuantityLabel } from "@/lib/orders/format";
-import { orderStatusLabel, paymentMethodLabel, trackingUrl } from "@/lib/orders/config";
+import {
+  orderStatusLabel,
+  paymentMethodLabel,
+  resolveShippingMethod,
+  shippingMethodLabel,
+  trackingUrl,
+} from "@/lib/orders/config";
 import { AdminShell } from "../AdminShell";
 import { OrderStatusForm } from "./OrderStatusForm";
 
@@ -92,12 +98,19 @@ export default async function AdminOrdersPage() {
                   </span>
                 </div>
                 <div className="summary-line">
-                  <span>Total</span>
-                  <strong>{formatPrice(order.totalCents)}</strong>
+                  <span>Shipping</span>
+                  <span>
+                    {shippingMethodLabel(resolveShippingMethod(order))} ·{" "}
+                    {formatPrice(order.shippingCents)}
+                  </span>
                 </div>
                 <div className="summary-line">
                   <span>Payment preference</span>
                   <span>{paymentMethodLabel(order.paymentMethod)}</span>
+                </div>
+                <div className="summary-line">
+                  <span>Total</span>
+                  <strong>{formatPrice(order.totalCents)}</strong>
                 </div>
                 <div className="summary-line">
                   <span>Created</span>

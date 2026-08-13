@@ -51,6 +51,7 @@ export default function CheckoutPage() {
     email: string;
     totalCents: number;
     paymentMethod: PaymentKey;
+    shippingMethod: ShippingKey;
   }>(null);
 
   const shippingCents = SHIPPING[shipping].cents;
@@ -129,6 +130,19 @@ export default function CheckoutPage() {
           payment is needed.
         </p>
         <span className="ref">{order.reference}</span>
+
+        <div className="pay-grid">
+          <div className="pay-card">
+            <h4>Shipping</h4>
+            <p>{SHIPPING[order.shippingMethod].label}</p>
+            <small>{SHIPPING[order.shippingMethod].note}</small>
+          </div>
+          <div className="pay-card">
+            <h4>Preferred payment</h4>
+            <p>{order.paymentMethod === "zelle" ? "Zelle" : "Apple Pay via iMessage"}</p>
+            <small>Use either option below — only one payment is needed.</small>
+          </div>
+        </div>
 
         <div className="pay-grid">
           <div className="pay-card">

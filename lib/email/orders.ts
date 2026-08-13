@@ -7,6 +7,8 @@ import {
   appleCashPhoneDisplay,
   orderStatusLabel,
   paymentMethodLabel,
+  resolveShippingMethod,
+  shippingMethodLabel,
   siteUrl,
   trackingUrl,
   zelleRecipient,
@@ -113,6 +115,7 @@ export async function sendAdminNewOrder(order: OrderWithItems) {
         ${adminCustomerPanel(order)}
         <div class="panel">
           <p><strong>Total:</strong> ${formatPrice(order.totalCents)}</p>
+          <p><strong>Shipping:</strong> ${shippingMethodLabel(resolveShippingMethod(order))} (${formatPrice(order.shippingCents)})</p>
           <p><strong>Preferred payment:</strong> ${paymentMethodLabel(order.paymentMethod)}</p>
         </div>
         ${orderSummary(order)}
@@ -254,10 +257,12 @@ function adminCustomerPanel(order: OrderWithItems) {
       <p style="margin:0 0 8px;color:${COLORS.body};"><strong style="color:${COLORS.foreground};">Name:</strong> ${escapeHtml(address.fullName || "—")}</p>
       <p style="margin:0 0 8px;color:${COLORS.body};"><strong style="color:${COLORS.foreground};">Email:</strong> ${escapeHtml(order.email)}</p>
       <p style="margin:0 0 8px;color:${COLORS.body};"><strong style="color:${COLORS.foreground};">Phone:</strong> ${escapeHtml(phone || "Not provided")}</p>
-      <p style="margin:0;color:${COLORS.body};line-height:1.6;">
+      <p style="margin:0 0 8px;color:${COLORS.body};line-height:1.6;">
         <strong style="color:${COLORS.foreground};">Ship to:</strong><br/>
         ${lines.map((line) => escapeHtml(line)).join("<br/>")}
       </p>
+      <p style="margin:0 0 8px;color:${COLORS.body};"><strong style="color:${COLORS.foreground};">Shipping:</strong> ${escapeHtml(shippingMethodLabel(resolveShippingMethod(order)))} (${formatPrice(order.shippingCents)})</p>
+      <p style="margin:0;color:${COLORS.body};"><strong style="color:${COLORS.foreground};">Preferred payment:</strong> ${escapeHtml(paymentMethodLabel(order.paymentMethod))}</p>
     </div>
   `;
 }
@@ -411,7 +416,7 @@ function orderSummary(order: OrderWithItems) {
         <tbody>${rows}</tbody>
         <tfoot>
           <tr><th style="${cell}">Subtotal</th><td style="${cellRight}">${formatPrice(order.subtotalCents)}</td></tr>
-          <tr><th style="${cell}">Shipping</th><td style="${cellRight}">${formatPrice(order.shippingCents)}</td></tr>
+          <tr><th style="${cell}">${escapeHtml(shippingMethodLabel(resolveShippingMethod(order)))}</th><td style="${cellRight}">${formatPrice(order.shippingCents)}</td></tr>
           <tr><th style="${cell}border-bottom:none;color:${COLORS.foreground};">Total</th><td style="${cellRight}border-bottom:none;"><strong style="color:${COLORS.foreground};">${formatPrice(order.totalCents)}</strong></td></tr>
         </tfoot>
       </table>

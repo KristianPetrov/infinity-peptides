@@ -221,6 +221,7 @@ export async function createOrder(payload: CheckoutPayload, userId?: string | nu
     email: input.shippingAddress.email,
     totalCents,
     paymentMethod: input.paymentMethod,
+    shippingMethod: input.shippingMethod,
   };
 }
 
