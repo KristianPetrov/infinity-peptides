@@ -49,7 +49,7 @@ export const checkoutPayloadSchema = z.object({
     )
     .min(1, "Your cart is empty."),
   shippingMethod: z.enum(["standard", "overnight"]),
-  paymentMethod: z.enum(["zelle", "apple_cash"]),
+  paymentMethod: z.enum(["zelle"]),
   acceptedTerms: z.literal(true, {
     error: "Please confirm the Research Use Only acknowledgement.",
   }),

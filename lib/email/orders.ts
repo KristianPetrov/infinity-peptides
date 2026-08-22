@@ -3,8 +3,6 @@ import { formatPrice } from "@/lib/products";
 import type { OrderWithItems } from "@/lib/orders/service";
 import { orderItemLabel } from "@/lib/orders/format";
 import {
-  appleCashMessageLink,
-  appleCashPhoneDisplay,
   orderStatusLabel,
   paymentMethodLabel,
   resolveShippingMethod,
@@ -267,8 +265,7 @@ function adminCustomerPanel(order: OrderWithItems) {
   `;
 }
 
-// Manual payment panel showing both Zelle and Apple Cash with step-by-step
-// instructions. Used on every payment-pending email.
+// Manual payment panel with Zelle instructions. Used on every payment-pending email.
 function paymentPanel(order: OrderWithItems) {
   const total = formatPrice(order.totalCents);
   const ref = order.reference;
@@ -277,14 +274,14 @@ function paymentPanel(order: OrderWithItems) {
     <div class="panel" style="border:1px solid ${COLORS.line};border-radius:14px;padding:20px 22px;background:${COLORS.panel};margin:18px 0;">
       <h2 style="margin:0 0 6px;font-size:14px;color:${COLORS.cyan};text-transform:uppercase;letter-spacing:.14em;">How to pay</h2>
       <p style="margin:0 0 14px;color:${COLORS.body};line-height:1.6;">
-        Send <strong style="color:${COLORS.foreground};">${total}</strong> using
-        <strong style="color:${COLORS.foreground};">either</strong> option below — whichever is easier for you.
+        Send <strong style="color:${COLORS.foreground};">${total}</strong> via
+        <strong style="color:${COLORS.foreground};">Zelle</strong> using the details below.
       </p>
 
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:separate;border-spacing:0 10px;margin:0;">
         <tr>
           <td style="border:1px solid ${COLORS.line};border-radius:12px;padding:14px 16px;background:rgba(255,255,255,0.03);">
-            <p style="margin:0 0 2px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:${COLORS.muted};">Option 1 · Zelle</p>
+            <p style="margin:0 0 2px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:${COLORS.muted};">Zelle</p>
             <p style="margin:0;font-size:17px;font-weight:700;color:${COLORS.foreground};">${escapeHtml(zelleRecipient())}</p>
             <p style="margin:6px 0 0;color:${COLORS.body};font-size:14px;line-height:1.6;">
               In your banking app, send ${total} to the address above and put
@@ -292,39 +289,13 @@ function paymentPanel(order: OrderWithItems) {
             </p>
           </td>
         </tr>
-        <tr>
-          <td style="border:1px solid ${COLORS.line};border-radius:12px;padding:14px 16px;background:rgba(255,255,255,0.03);">
-            <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-              <tr>
-                <td style="padding:0;">
-                  <p style="margin:0 0 2px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:${COLORS.muted};">Option 2 · Apple Pay via iMessage</p>
-                </td>
-                <td align="right" style="padding:0 0 0 8px;">
-                  <span style="display:inline-block;border:1px solid rgba(78,231,242,.35);border-radius:999px;padding:4px 8px;background:rgba(78,231,242,.1);color:${COLORS.cyan};font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;">iPhone only</span>
-                </td>
-              </tr>
-            </table>
-            <p style="margin:0;font-size:17px;font-weight:700;color:${COLORS.foreground};">${escapeHtml(appleCashPhoneDisplay())}</p>
-            <p style="margin:6px 0 0;color:${COLORS.body};font-size:14px;line-height:1.6;">
-              On your iPhone, open the prefilled message, tap <strong style="color:${COLORS.foreground};">+</strong>,
-              choose Apple Cash, and send <strong style="color:${COLORS.foreground};">${total}</strong>.
-            </p>
-            <table role="presentation" cellpadding="0" cellspacing="0" style="margin:12px 0 2px;width:auto;">
-              <tr>
-                <td style="border-radius:999px;background:#27c65f;">
-                  <a href="${escapeHtml(appleCashMessageLink(order.totalCents, order.reference))}" style="display:inline-block;padding:10px 18px;font-weight:700;font-size:14px;color:#041109;text-decoration:none;border-radius:999px;">Open iMessage</a>
-                </td>
-              </tr>
-            </table>
-          </td>
-        </tr>
       </table>
 
       <p style="margin:14px 0 0;color:${COLORS.body};font-size:14px;line-height:1.7;">
         <strong style="color:${COLORS.foreground};">Payment steps</strong><br/>
-        1. Pick Zelle or Apple Pay via iMessage — only one payment is needed.<br/>
+        1. Open Zelle in your banking app.<br/>
         2. Send the exact total of <strong style="color:${COLORS.foreground};">${total}</strong>.<br/>
-        3. Include your order reference <strong style="color:${COLORS.foreground};">${ref}</strong> in the Zelle memo or iMessage so we can match your payment.<br/>
+        3. Include your order reference <strong style="color:${COLORS.foreground};">${ref}</strong> in the Zelle memo so we can match your payment.<br/>
         4. Once your payment is verified you'll receive a receipt email, and a tracking number when your order ships.
       </p>
     </div>

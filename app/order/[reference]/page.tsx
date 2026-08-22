@@ -5,8 +5,6 @@ import { formatPrice } from "@/lib/products";
 import { getOrderByReference } from "@/lib/orders/service";
 import { orderItemLabel } from "@/lib/orders/format";
 import {
-  appleCashMessageLink,
-  appleCashPhoneDisplay,
   orderStatusLabel,
   paymentMethodLabel,
   resolveShippingMethod,
@@ -72,44 +70,27 @@ export default async function OrderPage({ params, searchParams }: Props) {
           <h3>Manual payment instructions</h3>
           <p className="hint">
             A confirmation email with these instructions was sent to{" "}
-            <strong>{order.email}</strong>. Pay with either option below.
+            <strong>{order.email}</strong>. Pay with Zelle using the details
+            below.
           </p>
           <div className="pay-grid" style={{ marginBottom: 16 }}>
             <div className="pay-card">
-              <h4>Option 1 · Zelle</h4>
+              <h4>Zelle</h4>
               <p>{zelleRecipient()}</p>
               <small>
                 In your banking app, send {formatPrice(order.totalCents)} to
                 this address with <strong>{order.reference}</strong> in the memo.
               </small>
             </div>
-            <div className="pay-card pay-card-message">
-              <div className="pay-card-heading">
-                <h4>Option 2 · Apple Pay via iMessage</h4>
-                <span className="iphone-pill">iPhone only</span>
-              </div>
-              <p>{appleCashPhoneDisplay()}</p>
-              <small>
-                On your iPhone, open the prefilled message, tap <strong>+</strong>,
-                choose Apple Cash, and send <strong>{formatPrice(order.totalCents)}</strong>.
-              </small>
-              <a
-                className="message-pay-button"
-                href={appleCashMessageLink(order.totalCents, order.reference)}
-              >
-                <span className="message-pay-icon" aria-hidden="true">$</span>
-                Open iMessage
-              </a>
-            </div>
           </div>
           <ol style={{ margin: 0, paddingLeft: 20, lineHeight: 1.9, color: "var(--muted)" }}>
-            <li>Pick Zelle or Apple Pay via iMessage.</li>
+            <li>Open Zelle in your banking app.</li>
             <li>
               Send the exact total of <strong>{formatPrice(order.totalCents)}</strong>.
             </li>
             <li>
               Include your order reference <strong>{order.reference}</strong> in
-              the Zelle memo or iMessage so we can match your payment.
+              the Zelle memo so we can match your payment.
             </li>
             <li>
               Once payment is verified you&apos;ll receive a receipt email, and a

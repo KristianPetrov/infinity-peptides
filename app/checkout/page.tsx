@@ -8,8 +8,6 @@ import { createCheckoutOrder } from "./actions";
 
 const ZELLE_RECIPIENT =
   process.env.NEXT_PUBLIC_ZELLE_RECIPIENT || "payments@infinity-peptides.com";
-const APPLE_CASH_PHONE = process.env.NEXT_PUBLIC_APPLE_CASH_PHONE || "9514258610";
-const APPLE_CASH_PHONE_DISPLAY = "(951) 425-8610";
 
 const SHIPPING = {
   standard: { label: "Standard shipping", note: "Discreet · 3–5 business days", cents: 1500 },
@@ -17,14 +15,7 @@ const SHIPPING = {
 } as const;
 
 type ShippingKey = keyof typeof SHIPPING;
-type PaymentKey = "zelle" | "apple_cash";
-
-function appleCashMessageLink(totalCents: number, ref: string) {
-  const digits = APPLE_CASH_PHONE.replace(/\D/g, "");
-  const phone = digits.length === 10 ? `+1${digits}` : `+${digits}`;
-  const message = `Infinity Peptides order ${ref} — ${formatPrice(totalCents)} via Apple Cash`;
-  return `sms:${phone}&body=${encodeURIComponent(message)}`;
-}
+type PaymentKey = "zelle";
 
 const EMPTY_FORM = {
   fullName: "",
@@ -42,7 +33,6 @@ export default function CheckoutPage() {
   const { items, subtotalCents, clear } = useCart();
   const [form, setForm] = useState(EMPTY_FORM);
   const [shipping, setShipping] = useState<ShippingKey>("standard");
-  const [payment, setPayment] = useState<PaymentKey>("zelle");
   const [accepted, setAccepted] = useState(false);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -91,7 +81,7 @@ export default function CheckoutPage() {
     const result = await createCheckoutOrder({
       items: items.map((item) => ({ slug: item.slug, quantity: item.quantity })),
       shippingMethod: shipping,
-      paymentMethod: payment,
+      paymentMethod: "zelle" satisfies PaymentKey,
       acceptedTerms: accepted,
       shippingAddress: form,
     });
@@ -110,7 +100,7 @@ export default function CheckoutPage() {
     const summaryLines = [
       `Order reference: ${order.reference}`,
       `Total due: ${formatPrice(order.totalCents)}`,
-      `Payment options: Zelle (${ZELLE_RECIPIENT}) or Apple Pay via iMessage (${APPLE_CASH_PHONE_DISPLAY})`,
+      `Payment: Zelle (${ZELLE_RECIPIENT})`,
     ].join("%0D%0A");
     const mailto = `mailto:orders@infinity-peptides.com?subject=${encodeURIComponent(
       `Order ${order.reference}`,
@@ -126,8 +116,7 @@ export default function CheckoutPage() {
           <strong style={{ color: "var(--foreground, #f4f7fc)" }}>
             {order.email}
           </strong>
-          . Choose either Zelle or Apple Pay via iMessage below — only one
-          payment is needed.
+          . Send payment via Zelle using the details below.
         </p>
         <span className="ref">{order.reference}</span>
 
@@ -139,38 +128,19 @@ export default function CheckoutPage() {
           </div>
           <div className="pay-card">
             <h4>Preferred payment</h4>
-            <p>{order.paymentMethod === "zelle" ? "Zelle" : "Apple Pay via iMessage"}</p>
-            <small>Use either option below — only one payment is needed.</small>
+            <p>Zelle</p>
+            <small>Send the exact total with your order reference in the memo.</small>
           </div>
         </div>
 
         <div className="pay-grid">
           <div className="pay-card">
-            <h4>Option 1 · Zelle</h4>
+            <h4>Zelle</h4>
             <p>{ZELLE_RECIPIENT}</p>
             <small>
               In your banking app, send {formatPrice(order.totalCents)} to this
               address and put <strong>{order.reference}</strong> in the memo.
             </small>
-          </div>
-          <div className="pay-card pay-card-message">
-            <div className="pay-card-heading">
-              <h4>Option 2 · Apple Pay via iMessage</h4>
-              <span className="iphone-pill">iPhone only</span>
-            </div>
-            <p>{APPLE_CASH_PHONE_DISPLAY}</p>
-            <small>
-              Tap below on your iPhone, then use Apple Cash in Messages to send{" "}
-              <strong>{formatPrice(order.totalCents)}</strong>. Your order
-              reference is prefilled.
-            </small>
-            <a
-              className="message-pay-button"
-              href={appleCashMessageLink(order.totalCents, order.reference)}
-            >
-              <span className="message-pay-icon" aria-hidden="true">$</span>
-              Open iMessage
-            </a>
           </div>
         </div>
 
@@ -180,14 +150,14 @@ export default function CheckoutPage() {
         >
           <h3>Payment steps</h3>
           <ol style={{ margin: 0, paddingLeft: 20, lineHeight: 1.9, color: "var(--muted)" }}>
-            <li>Pick Zelle or Apple Pay via iMessage.</li>
+            <li>Open Zelle in your banking app.</li>
             <li>
               Send the exact total of{" "}
               <strong>{formatPrice(order.totalCents)}</strong>.
             </li>
             <li>
               Include your order reference <strong>{order.reference}</strong>{" "}
-              in the Zelle memo or iMessage so we can match your payment.
+              in the Zelle memo so we can match your payment.
             </li>
             <li>
               Once payment is verified you&apos;ll receive a receipt email, and
@@ -345,39 +315,19 @@ export default function CheckoutPage() {
             </div>
           </section>
 
-          {/* Payment preference */}
+          {/* Payment */}
           <section className="field-card">
-            <h3>Preferred payment</h3>
+            <h3>Payment</h3>
             <p className="hint">
-              Choose the option you plan to use. Full instructions appear after
-              you place your order.
+              Pay with Zelle after you place your order. Full instructions
+              appear on the confirmation screen.
             </p>
             <div className="option-row">
-              <label className={`option ${payment === "zelle" ? "selected" : ""}`}>
-                <input
-                  type="radio"
-                  name="payment"
-                  checked={payment === "zelle"}
-                  onChange={() => setPayment("zelle")}
-                />
+              <label className="option selected">
+                <input type="radio" name="payment" checked readOnly />
                 <span className="option-body">
                   <strong>Zelle</strong>
                   <span>{ZELLE_RECIPIENT}</span>
-                </span>
-              </label>
-              <label className={`option payment-option ${payment === "apple_cash" ? "selected" : ""}`}>
-                <input
-                  type="radio"
-                  name="payment"
-                  checked={payment === "apple_cash"}
-                  onChange={() => setPayment("apple_cash")}
-                />
-                <span className="option-body">
-                  <span className="payment-option-title">
-                    <strong>Apple Pay via iMessage</strong>
-                    <em>iPhone only</em>
-                  </span>
-                  <span>Send Apple Cash to {APPLE_CASH_PHONE_DISPLAY}</span>
                 </span>
               </label>
             </div>

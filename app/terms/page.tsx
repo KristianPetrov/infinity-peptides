@@ -37,8 +37,7 @@ export default function TermsPage() {
 
         <h2>Payment</h2>
         <p>
-          Payment is collected manually via the methods presented at checkout
-          (Zelle or Apple Cash via iMessage on iPhone). Your order reference must
+          Payment is collected manually via Zelle. Your order reference must
           be included with the payment. No payment-card processing occurs on
           this site.
         </p>
