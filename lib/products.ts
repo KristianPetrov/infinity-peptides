@@ -61,6 +61,8 @@ export const CATEGORY_BLURB: Record<Category, string> = {
 const PRODUCT_IMAGE_BY_SLUG: Partial<Record<string, string>> = {
   "5-amino-1mq-5mg": "/products/5-amino-1mq-5mg.png",
   "5-amino-1mq-10mg": "/products/5-amino-1mq-10mg.png",
+  "ara-290-10mg": "/products/ara-290-10mg.png",
+  "ara-290-16mg": "/products/ara-290-16mg.png",
   "aod-9604-10mg": "/products/aod-9604-10mg.png",
   "bac-water-10ml": "/products/bac-water-10ml.png",
   "bac-water-3ml": "/products/bac-water-3ml.png",
@@ -181,7 +183,7 @@ const catalogProducts: Product[] = [
     slug: "retatrutide-40mg",
     name: "Retatrutide",
     strength: "40 mg",
-    inquiryLabel: "Inquiry Only — Pricing Coming Soon",
+    priceCents: 7000,
     category: "Metabolic Research",
     tag: "Triple-agonist (high concentration)",
     description:
@@ -191,7 +193,7 @@ const catalogProducts: Product[] = [
     slug: "retatrutide-50mg",
     name: "Retatrutide",
     strength: "50 mg",
-    inquiryLabel: "Inquiry Only — Pricing Coming Soon",
+    priceCents: 8000,
     category: "Metabolic Research",
     tag: "Triple-agonist (max concentration)",
     description:
@@ -247,7 +249,7 @@ const catalogProducts: Product[] = [
     slug: "tirzepatide-40mg",
     name: "Tirzepatide",
     strength: "40 mg",
-    inquiryLabel: "Inquiry Only — Pricing Coming Soon",
+    priceCents: 8000,
     category: "Metabolic Research",
     tag: "Dual GIP / GLP-1 (high concentration)",
     description:
@@ -262,7 +264,7 @@ const catalogProducts: Product[] = [
     slug: "tirzepatide-50mg",
     name: "Tirzepatide",
     strength: "50 mg",
-    inquiryLabel: "Inquiry Only — Pricing Coming Soon",
+    priceCents: 8000,
     category: "Metabolic Research",
     tag: "Dual GIP / GLP-1 (max concentration)",
     description:
@@ -480,6 +482,26 @@ const catalogProducts: Product[] = [
     tag: "Copper-binding tripeptide analog",
     description:
       "AHK-Cu is a copper-binding tripeptide analog referenced in matrix, follicular, and dermal-signaling research models.",
+  },
+  {
+    slug: "ara-290-10mg",
+    name: "ARA 290",
+    strength: "10 mg",
+    inquiryLabel: "For Inquiry",
+    category: "Repair & Matrix",
+    tag: "Innate repair receptor agonist",
+    description:
+      "ARA 290 is an erythropoietin-derived research peptide referenced in studies of innate repair receptor signaling and tissue-protective pathways.",
+  },
+  {
+    slug: "ara-290-16mg",
+    name: "ARA 290",
+    strength: "16 mg",
+    inquiryLabel: "For Inquiry",
+    category: "Repair & Matrix",
+    tag: "Innate repair receptor agonist",
+    description:
+      "A higher-concentration ARA 290 vial for extended research into innate repair receptor signaling and tissue-protective pathways.",
   },
 
   // ---------------- Growth & Signaling ----------------
