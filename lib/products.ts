@@ -264,7 +264,7 @@ const catalogProducts: Product[] = [
     slug: "tirzepatide-50mg",
     name: "Tirzepatide",
     strength: "50 mg",
-    priceCents: 8000,
+    priceCents: 9000,
     category: "Metabolic Research",
     tag: "Dual GIP / GLP-1 (max concentration)",
     description:
