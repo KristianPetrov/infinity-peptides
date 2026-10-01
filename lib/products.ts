@@ -61,8 +61,8 @@ export const CATEGORY_BLURB: Record<Category, string> = {
 const PRODUCT_IMAGE_BY_SLUG: Partial<Record<string, string>> = {
   "5-amino-1mq-5mg": "/products/5-amino-1mq-5mg.png",
   "5-amino-1mq-10mg": "/products/5-amino-1mq-10mg.png",
-  "ara-290-10mg": "/products/ara-290-10mg.png",
-  "ara-290-16mg": "/products/ara-290-16mg.png",
+  "ara-290-10mg": "/products/ara-290-10mg-v2.png",
+  "ara-290-16mg": "/products/ara-290-16mg-v2.png",
   "aod-9604-10mg": "/products/aod-9604-10mg.png",
   "bac-water-10ml": "/products/bac-water-10ml.png",
   "bac-water-3ml": "/products/bac-water-3ml.png",
@@ -73,6 +73,8 @@ const PRODUCT_IMAGE_BY_SLUG: Partial<Record<string, string>> = {
   "bpc-157-tb-500-10mg": "/products/bpc-tb-500-10mg-10mg.png",
   "bpc-157-tb-500-5mg": "/products/bpc-tb-500-5mg-5mg.png",
   "cagrilintide-10mg": "/products/cagrilintide-10mg.png",
+  "kpv-10mg": "/products/kpv-10mg.png",
+  "cjc-ipa-10mg": "/products/cjc-ipa-10mg.png",
   "cjc-dac-2mg": "/products/cjc-dac-2mg.png",
   epitalon: "/products/epitalon-10mg.png",
   "ghk-cu-100mg": "/products/ghk-cu-100mg.png",
@@ -487,7 +489,7 @@ const catalogProducts: Product[] = [
     slug: "ara-290-10mg",
     name: "ARA 290",
     strength: "10 mg",
-    inquiryLabel: "For Inquiry",
+    priceCents: 4500,
     category: "Repair & Matrix",
     tag: "Innate repair receptor agonist",
     description:
@@ -497,14 +499,35 @@ const catalogProducts: Product[] = [
     slug: "ara-290-16mg",
     name: "ARA 290",
     strength: "16 mg",
-    inquiryLabel: "For Inquiry",
+    priceCents: 5000,
     category: "Repair & Matrix",
     tag: "Innate repair receptor agonist",
     description:
       "A higher-concentration ARA 290 vial for extended research into innate repair receptor signaling and tissue-protective pathways.",
   },
 
+  {
+    slug: "kpv-10mg",
+    name: "KPV",
+    strength: "10 mg",
+    priceCents: 4000,
+    category: "Repair & Matrix",
+    tag: "Research tripeptide",
+    description:
+      "KPV is a tripeptide reference compound supplied for in-vitro laboratory research.",
+  },
+
   // ---------------- Growth & Signaling ----------------
+  {
+    slug: "cjc-ipa-10mg",
+    name: "CJC/IPA",
+    strength: "10 mg",
+    priceCents: 4000,
+    category: "Growth & Signaling",
+    tag: "CJC / Ipamorelin research blend",
+    description:
+      "A CJC and Ipamorelin reference blend supplied for in-vitro laboratory signaling research.",
+  },
   {
     slug: "ipamorelin-10mg",
     name: "Ipamorelin",
